@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>[reed@blog ~]# _</title><link href="https://reed-qu.github.io/" rel="alternate"></link><link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="self"></link><id>https://reed-qu.github.io/</id><updated>2020-01-01T20:02:00+08:00</updated><entry><title>SVM(三)从软间隔到核函数</title><link href="https://reed-qu.github.io/svmsan-cong-ruan-jian-ge-dao-he-han-shu.html" rel="alternate"></link><published>2020-01-01T20:02:00+08:00</published><updated>2020-01-01T20:02:00+08:00</updated><author><name>reed</name></author><id>tag:reed-qu.github.io,2020-01-01:/svmsan-cong-ruan-jian-ge-dao-he-han-shu.html</id><summary type="html">&lt;blockquote&gt;
+&lt;p&gt;在 &lt;a href="https://zhuanlan.zhihu.com/p/76040792"&gt; SVM(一) &lt;/a&gt; 和 &lt;a href="https://zhuanlan.zhihu.com/p/82732640"&gt; SVM(二)
+&lt;/a&gt; 中，从 &lt;strong&gt;感知机&lt;/strong&gt; 到 &lt;strong&gt;SVM损失函数&lt;/strong&gt; 再到
+&lt;strong&gt;拉格朗日对偶式，&lt;/strong&gt; 个人认为还是较为清楚的说了 &lt;strong&gt;硬间隔线性可分SVM&lt;/strong&gt;
+，但是现实世界中往往并不是完美的，在实际环境中接触到的数据即便是线性可分也往往是找不到硬间隔的，还有线性不可分的情况，那么此时应该怎么办，SVM如何解决这种问题，本次SVM的最后一部分就来说一说这些问题&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;软间隔线性可分SVM&lt;/h2&gt;
+&lt;p&gt;首先依旧是给定数据集  &lt;span class="math"&gt;\(D={(x^{(1)}, y^{(1)}), (x^{(2)},
+y^{(2)}),...,(x^{(N)}, y^{(N)})}\)&lt;/span&gt;  ，其中  &lt;span class="math"&gt;\(x^{(i)}\in R^n\)&lt;/span&gt;
+&lt;span class="math"&gt;\(y^{(i)}\in {-1, +1}\)&lt;/span&gt;  &lt;span class="math"&gt;\(i = 1,2 …&lt;/span&gt;&lt;/p&gt;</summary><content type="html">&lt;blockquote&gt;
+&lt;p&gt;在 &lt;a href="https://zhuanlan.zhihu.com/p/76040792"&gt; SVM(一) &lt;/a&gt; 和 &lt;a href="https://zhuanlan.zhihu.com/p/82732640"&gt; SVM(二)
+&lt;/a&gt; 中，从 &lt;strong&gt;感知机&lt;/strong&gt; 到 &lt;strong&gt;SVM损失函数&lt;/strong&gt; 再到
+&lt;strong&gt;拉格朗日对偶式，&lt;/strong&gt; 个人认为还是较为清楚的说了 &lt;strong&gt;硬间隔线性可分SVM&lt;/strong&gt;
+，但是现实世界中往往并不是完美的，在实际环境中接触到的数据即便是线性可分也往往是找不到硬间隔的，还有线性不可分的情况，那么此时应该怎么办，SVM如何解决这种问题，本次SVM的最后一部分就来说一说这些问题&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;软间隔线性可分SVM&lt;/h2&gt;
+&lt;p&gt;首先依旧是给定数据集  &lt;span class="math"&gt;\(D={(x^{(1)}, y^{(1)}), (x^{(2)},
+y^{(2)}),...,(x^{(N)}, y^{(N)})}\)&lt;/span&gt;  ，其中  &lt;span class="math"&gt;\(x^{(i)}\in R^n\)&lt;/span&gt;
+&lt;span class="math"&gt;\(y^{(i)}\in {-1, +1}\)&lt;/span&gt;  &lt;span class="math"&gt;\(i = 1,2...,N\)&lt;/span&gt;  ，前面的问题中
+&lt;strong&gt;前提是数据一定得是线性可分&lt;/strong&gt; 的，我们这里也假定数据是线性可分的，但是硬间隔不存在，也就是说 &lt;strong&gt;一些噪声或者叫异常点在间隔中干扰了硬间隔&lt;/strong&gt;
+，导致找不到一个传统意义上的硬间隔。&lt;/p&gt;
+&lt;p&gt;此时既然仍然是线性可分的，那就还是可以在数据中画出一个超平面尽最大限度的分好正负例，且能找到最大间隔，只不过间隔是有“误差”的，换句话就是说，此时允许一定的“误差”落在间隔中，这种间隔就叫做
+&lt;strong&gt;软间隔&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="svm软间隔" src="https://reed-qu.github.io/images/svm3_soft_margin.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;从图中可以清楚的看出来，相较于硬间隔，软间隔允许有 &lt;strong&gt;错分数据&lt;/strong&gt; 在间隔内，此时在数学上达到这种效果的方法就是给每一个样本点一个 &lt;strong&gt;松弛变量&lt;/strong&gt;
+&lt;span class="math"&gt;\(\xi\)&lt;/span&gt;  ，且和最大间隔  &lt;span class="math"&gt;\(\frac{1}{2}||\theta||^2\)&lt;/span&gt;  之间加一个
+&lt;strong&gt;惩罚参数来控制二者的“权重” &lt;span class="math"&gt;\(C\)&lt;/span&gt;  &lt;/strong&gt; ，比如  &lt;span class="math"&gt;\(C=+\infty\)&lt;/span&gt;
+时其实就相当于不允许有任何误差，也就容易过拟合，所以软、硬间隔线性可分SVM二者的损失函数是类似的，主要差别即在 &lt;strong&gt;松弛变量&lt;/strong&gt;
+这部分，定义软间隔线性可分SVM损失函数为&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{equation}
+    \begin{aligned}
+        \mathop{min}_{\theta}\space&amp;amp;\frac{1}{2}||\theta||^2+C\sum_{i=1}^{N}{\xi^{(i)}}\\
+        s.t. \space&amp;amp;y^{(i)}(\theta^Tx^{(i)}+b)+\xi^{(i)}\geq1，&amp;amp;i=1,2,...,N\\
+                   &amp;amp;\xi^{(i)}\geq0，                           &amp;amp;i=1,2,...,N
+    \end{aligned}
+\end{equation}
+$$&lt;/div&gt;
+&lt;p&gt;然后依然是构造拉格朗日函数，但是注意此时约束为 &lt;strong&gt;两个不等式&lt;/strong&gt; ，所以需要  &lt;span class="math"&gt;\(\alpha,\beta\)&lt;/span&gt;
+两个拉格朗日乘子向量&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{equation}
+    \begin{aligned}
+        \mathop{min}_{\theta,b,\xi}\mathop{max}_{\alpha,\beta}L(\theta,b,\alpha,\beta,\xi)=
+        &amp;amp;\frac{1}{2}||\theta||^2+C\sum_{i=1}^{N}{\xi^{(i)}}\\
+        &amp;amp;+\sum_{i=1}^{N}{\alpha^{i}}(1-y^{(i)}(\theta^Tx^{(i)}+b)-\xi^{(i)})\\
+        &amp;amp;+\sum_{i=1}^{N}{\beta^{(i)}\xi^{(i)}}\\
+        &amp;amp;=\mathop{max}_{\alpha,\beta}\mathop{min}_{\theta,b,\xi}L(\theta,b,\alpha,\beta,\xi)
+    \end{aligned}
+\end{equation}
+$$&lt;/div&gt;
+&lt;p&gt;然后根据对偶问题进行计算，分别对  &lt;span class="math"&gt;\(\theta,b,\xi\)&lt;/span&gt;  求导等于  &lt;span class="math"&gt;\(0\)&lt;/span&gt;  求极小&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{equation}
+    \begin{aligned}
+        \frac{\partial L}{\partial \theta}&amp;amp;= \theta-\sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}x^{(i)}}&amp;amp;=0\\
+        \frac{\partial L}{\partial b} &amp;amp;=-\sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}}&amp;amp;=0\\
+        \frac{\partial L}{\partial \xi^{(i)}}&amp;amp;=C-\alpha^{(i)}-\beta^{(i)}&amp;amp;=0
+    \end{aligned}
+\end{equation}
+$$&lt;/div&gt;
+&lt;p&gt;整合公式即可得出， &lt;strong&gt;不要忘记拉格朗日乘子的约束&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\theta=\sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}x^{(i)}}\\
+\sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}}=0\\
+C-\alpha^{(i)}-\beta^{(i)}=0\\
+\alpha^{(i)}\geq0\\
+\beta^{(i)}\geq0
+$$&lt;/div&gt;
+&lt;p&gt;然后将  &lt;span class="math"&gt;\(\theta\)&lt;/span&gt;  带入原始问题的拉格朗日函数中，此处与硬间隔一致，所以推导过程就不赘述了，可以参考 &lt;a href="https://zhuanlan.zhihu.com/p/82732640"&gt;
+SVM(二)拉格朗日对偶式 &lt;/a&gt; ，得到&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\mathop{min}_{\theta,b,\xi}L(\theta,b,\alpha,\beta,\xi)=\sum_{i=1}^{N}{\alpha^{(i)}}-\frac{1}{2}\sum_{i=1}^{N}\sum_{j=1}^{N}{\alpha^{(i)}\alpha^{(j)}y^{(i)}y^{(j)}x^{(i)}x^{(j)}}
+$$&lt;/div&gt;
+&lt;p&gt;再对  &lt;span class="math"&gt;\(\alpha\)&lt;/span&gt;  求  &lt;span class="math"&gt;\(L\)&lt;/span&gt;的极大即是对偶问题了，这里先考虑相较于硬间隔SVM来说多出来的约束条件  &lt;span class="math"&gt;\(C-\alpha^{(i)}-\beta^{(i)}=0\)&lt;/span&gt;  ，和  &lt;span class="math"&gt;\(\alpha^{(i)}\geq0，\beta^{(i)}\geq0\)&lt;/span&gt;  ，可以约掉  &lt;span class="math"&gt;\(\beta\)&lt;/span&gt;  ，即是&lt;span class="math"&gt;\(0\leq\alpha^{(i)}\leq C\)&lt;/span&gt; ，所以对偶问题描述成&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{equation}
+    \begin{aligned}
+        \mathop{min}_{\alpha}\space
+        &amp;amp;\frac{1}{2}\sum_{i=1}^{N}\sum_{j=1}^{N}{\alpha^{(i)}\alpha^{(j)}y^{(i)}y^{(j)}x^{(i)}x^{(j)}}-\sum_{i=1}^{N}{\alpha^{(i)}}\\
+        s.t. \space&amp;amp; \sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}=0}\\
+        &amp;amp;0\leq\alpha^{(i)}\leq C，i=1,2,...,N
+    \end{aligned}
+\end{equation}
+$$&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;从对偶问题的形式也可以看出来，相较于硬间隔SVM来说，只是对拉格朗日乘子的上限做了限制，上限就是 &lt;span class="math"&gt;\(C\)&lt;/span&gt;  &lt;/strong&gt;&lt;/p&gt;
+&lt;h2&gt;核方法&lt;/h2&gt;
+&lt;p&gt;软间隔线性可分依然是线性可分，假如真实的数据是线性不可分的情况SVM能不能处理，怎么处理？比如说数据分布如下图(左)，这时候是数据线性不可分，但是在可视化图中是能够很清楚的知道这些数据应该怎么划分，这里超平面应该是一个圆，但是我们不能完全依赖数据可视化，超过3维肉眼就很难看出来了，
+&lt;strong&gt;这时候的一个思路是经过一个特殊的转化(下图 &lt;span class="math"&gt;\(\phi(x)\)&lt;/span&gt;
+)，把这些数据变成线性可分的(下图右)，那么就可以利用线性可分SVM来处理了 &lt;/strong&gt;
+，核方法就是这么处理的。其实核方法不是只在SVM中出现，核方法是一个纯粹的数学方法，其解决的问题就是 &lt;strong&gt;数据映射到高维空间中计算量过于复杂&lt;/strong&gt; 的问题&lt;/p&gt;
+&lt;p&gt;&lt;img alt="svm核方法" src="https://reed-qu.github.io/images/svm3_kernel.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;根据线性可分SVM中推导的公式来看，最终的目标函数只是与  &lt;span class="math"&gt;\(x^{(i)},x^{(j)}\)&lt;/span&gt;  的 &lt;strong&gt;内积&lt;/strong&gt;
+有关，然后对于线性不可分的数据定义某种线性变化&lt;/p&gt;
+&lt;p&gt;&lt;span class="math"&gt;\(x\rightarrow \phi(x)\\\\)&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;把  &lt;span class="math"&gt;\(x\)&lt;/span&gt;  映射到高维空间中，目的是 &lt;strong&gt;为了让在低维空间中线性不可分的数据在映射后的高位空间中线性可分&lt;/strong&gt;
+，映射后的内积就是  &lt;span class="math"&gt;\(&amp;lt;\phi(x^{(i)}),\phi(x^{(j)})&amp;gt;\)&lt;/span&gt;
+，有了这个映射就可以在映射后的高维空间中做SVM的事情，但是这个不叫核方法。到这里其实仔细想一下就会发现一个问题，这个映射是要做“ &lt;strong&gt;升维&lt;/strong&gt;
+”的事儿，那么维度爆炸甚至是无穷维时怎么办，计算量会特别大，解决这个问题的方法才是核方法，具体的做法是在原始空间中找到一个函数
+&lt;span class="math"&gt;\(\kappa\)&lt;/span&gt;  ，使得&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\kappa(x^{(i)},x^{(j)})=&amp;lt;\phi(x^{(i)}),\phi(x^{(j)})&amp;gt;
+$$&lt;/div&gt;
+&lt;p&gt;
+这样一来根本就不用去计算  &lt;span class="math"&gt;\(\phi(x)\)&lt;/span&gt;  了甚至不需要知道  &lt;span class="math"&gt;\(\phi\)&lt;/span&gt;
+是怎么映射的就解决了维度爆炸带来的计算性能下降的问题，找到的这个函数  &lt;span class="math"&gt;\(\kappa\)&lt;/span&gt;
+就叫做核函数。常用的核函数主要为以下3类&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;线性核，实际上就是没有做变换&lt;/strong&gt; &lt;span class="math"&gt;\(\kappa(x_1, x_2) = &amp;lt;x_1, x_2&amp;gt;\)&lt;/span&gt; &lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;高斯核，使用较为广泛，能够把原始特征映射到无穷维，也叫做径向基函数(Radial Basic Function，简称RBF)&lt;/strong&gt; &lt;span class="math"&gt;\(\kappa(x_1, x_2) = exp(-\frac{||x_1-x_2||_2^2}{2\sigma^2})\)&lt;/span&gt; &lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;多项式核&lt;/strong&gt; &lt;span class="math"&gt;\(\kappa(x_1, x_2) = (&amp;lt;x_1, x_2&amp;gt;+R)^d\)&lt;/span&gt; &lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;这里拿多项式核举个例子，取  &lt;span class="math"&gt;\(R=0，d=2\)&lt;/span&gt;  ，假设这里的  &lt;span class="math"&gt;\(x，y\)&lt;/span&gt;  是一个2维向量&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{equation}
+    \begin{aligned}
+        \kappa(x,y) &amp;amp;= (&amp;lt;x, y&amp;gt;)^2\\
+        &amp;amp;=(x_1y_1+x_2y_2)^2\\\ &amp;amp;=x_1^2y_1^2+2x_1y_1x_2y_2+x_2^2y_2^2\\
+        &amp;amp;=&amp;lt;(x_1^2,\sqrt2x_1x_2,x_2^2),(y_1^2,\sqrt2y_1y_2,y_2^2) &amp;gt;\\
+        &amp;amp;=&amp;lt;\phi(x),\phi(y)&amp;gt;
+    \end{aligned}
+\end{equation}
+$$&lt;/div&gt;
+&lt;p&gt;可以看出来，核函数  &lt;span class="math"&gt;\(\kappa\)&lt;/span&gt;
+可以避免在高维空间中做内积这种复杂的运算是因为核函数巧妙的避免了映射之后再做内积，而是直接给替代了，想对应的SVM的原始问题、对偶问题、超平面模型都会有所变化，即是将内积转变为其核函数&lt;/p&gt;
+&lt;p&gt;&lt;span class="math"&gt;\(x^{(i)}\cdot x^{(j)}\rightarrow \kappa(x^{(i)}, x^{(j)})\)&lt;/span&gt;
+&lt;strong&gt;软间隔对偶问题&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{equation}
+    \begin{aligned}
+        \mathop{min}_{\alpha}\space
+        &amp;amp;\frac{1}{2}\sum_{i=1}^{N}\sum_{j=1}^{N}{\alpha^{(i)}\alpha^{(j)}y^{(i)}y^{(j)}\kappa(x^{(i)},x^{(j)})}-\sum_{i=1}^{N}{\alpha^{(i)}}\\
+        s.t. \space&amp;amp; \sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}=0}\\
+        &amp;amp;0\leq\alpha^{(i)}\leq C，i=1,2,...,N
+    \end{aligned}
+\end{equation}
+$$&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;超平面模型&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="math"&gt;$$
+f(x)=sign(\sum_{i=1}^{N}{\lambda^{*(i)}y^{(i)}\kappa(x\cdot x^{(i)})+b^*})
+$$&lt;/div&gt;
+&lt;h2&gt;总结&lt;/h2&gt;
+&lt;p&gt;经过 &lt;strong&gt;&lt;a href="https://zhuanlan.zhihu.com/p/76040792"&gt; SVM(一)从感知机到SVM损失函数 &lt;/a&gt; &lt;/strong&gt; 和 &lt;strong&gt;&lt;a href="https://zhuanlan.zhihu.com/p/82732640"&gt;
+SVM(二)拉格朗日对偶式 &lt;/a&gt; &lt;/strong&gt;
+和本文，对SVM做了简单的介绍，其实还有一些内容没有整理，比如求解对偶问题的 &lt;strong&gt;SMO算法(类似坐标轴下降的一种算法)&lt;/strong&gt; ，还有 &lt;strong&gt;支持向量回归&lt;/strong&gt;
+等等，这部分留给后面处理。当然SVM并不可能是万能的，也是有一定使用场景的&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;优点：&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;em&gt;较适合解决高维特征的分类回归问题，因为SVM主要求解的是对偶问题，经过对偶问题之后高维度就转化成了样本量相关的问题&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;通过核方法来能够解决线性不可分问题&lt;/em&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;缺点：&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;em&gt;还是因为对偶问题会把高维度转化成样本量相关的问题的原因，SVM并不适用于特别大的数据集&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;核函数的选择更像是玄学，并没有完备的理论依据来证明什么核函数适用于什么情况，所以往往需要尝试，利用交叉验证来选取更合适的核函数&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;较依赖好的特征工程，特别是缺失值&lt;/em&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;最后感谢李航老师的《统计学习方法 第二版》 [1]  ，对我个人理解SVM有很大帮助。 &lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;😛&lt;/p&gt;
+&lt;script type="text/javascript"&gt;if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width &lt; 768) ? "left" : align;
+        indent = (screen.width &lt; 768) ? "0em" : indent;
+        linebreak = (screen.width &lt; 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+&lt;/script&gt;</content><category term="machine learning"></category></entry></feed>
