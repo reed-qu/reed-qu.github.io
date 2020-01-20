@@ -22,7 +22,7 @@ y^{(2)}),...,(x^{(N)}, y^{(N)})}\)&lt;/span&gt;  ，其中  &lt;span class="math
 ，导致找不到一个传统意义上的硬间隔。&lt;/p&gt;
 &lt;p&gt;此时既然仍然是线性可分的，那就还是可以在数据中画出一个超平面尽最大限度的分好正负例，且能找到最大间隔，只不过间隔是有“误差”的，换句话就是说，此时允许一定的“误差”落在间隔中，这种间隔就叫做
 &lt;strong&gt;软间隔&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img alt="svm软间隔" src="https://reed-qu.github.io/images/svm3_soft_margin.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img class="image-process-article-image" src="/images/svm3_soft_margin.jpg"/&gt;&lt;/p&gt;
 &lt;p&gt;从图中可以清楚的看出来，相较于硬间隔，软间隔允许有 &lt;strong&gt;错分数据&lt;/strong&gt; 在间隔内，此时在数学上达到这种效果的方法就是给每一个样本点一个 &lt;strong&gt;松弛变量&lt;/strong&gt;
 &lt;span class="math"&gt;\(\xi\)&lt;/span&gt;  ，且和最大间隔  &lt;span class="math"&gt;\(\frac{1}{2}||\theta||^2\)&lt;/span&gt;  之间加一个
 &lt;strong&gt;惩罚参数来控制二者的“权重” &lt;span class="math"&gt;\(C\)&lt;/span&gt;  &lt;/strong&gt; ，比如  &lt;span class="math"&gt;\(C=+\infty\)&lt;/span&gt;
@@ -90,7 +90,7 @@ $$&lt;/div&gt;
 &lt;strong&gt;这时候的一个思路是经过一个特殊的转化(下图 &lt;span class="math"&gt;\(\phi(x)\)&lt;/span&gt;
 )，把这些数据变成线性可分的(下图右)，那么就可以利用线性可分SVM来处理了 &lt;/strong&gt;
 ，核方法就是这么处理的。其实核方法不是只在SVM中出现，核方法是一个纯粹的数学方法，其解决的问题就是 &lt;strong&gt;数据映射到高维空间中计算量过于复杂&lt;/strong&gt; 的问题&lt;/p&gt;
-&lt;p&gt;&lt;img alt="svm核方法" src="https://reed-qu.github.io/images/svm3_kernel.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img class="image-process-article-image" src="/images/svm3_kernel.png"/&gt;&lt;/p&gt;
 &lt;p&gt;根据线性可分SVM中推导的公式来看，最终的目标函数只是与  &lt;span class="math"&gt;\(x^{(i)},x^{(j)}\)&lt;/span&gt;  的 &lt;strong&gt;内积&lt;/strong&gt;
 有关，然后对于线性不可分的数据定义某种线性变化&lt;/p&gt;
 &lt;p&gt;&lt;span class="math"&gt;\(x\rightarrow \phi(x)\\\\)&lt;/span&gt;&lt;/p&gt;

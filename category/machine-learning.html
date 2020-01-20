@@ -1,33 +1,30 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-        <meta charset="utf-8" />
-        <title>[reed@blog ~]# _ - machine learning</title>
-        <link rel="stylesheet" href="https://reed-qu.github.io/theme/css/main.css" />
-        <link href="https://reed-qu.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" />
+<meta charset="utf-8"/>
+<title>[reed@blog ~]# _ - machine learning</title>
+<link href="https://reed-qu.github.io/theme/css/main.css" rel="stylesheet"/>
+<link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" type="application/atom+xml"/>
 </head>
-
-<body id="index" class="home">
-        <header id="banner" class="body">
-                <h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
-                <nav><ul>
-                    <li class="active"><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
-                </ul></nav>
-        </header><!-- /#banner -->
-
-            <aside id="featured" class="body">
-                <article>
-                    <h1 class="entry-title"><a href="https://reed-qu.github.io/svmsan-cong-ruan-jian-ge-dao-he-han-shu.html">SVM(三)从软间隔到核函数</a></h1>
+<body class="home" id="index">
+<header class="body" id="banner">
+<h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
+<nav><ul>
+<li class="active"><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
+</ul></nav>
+</header><!-- /#banner -->
+<aside class="body" id="featured">
+<article>
+<h1 class="entry-title"><a href="https://reed-qu.github.io/svmsan-cong-ruan-jian-ge-dao-he-han-shu.html">SVM(三)从软间隔到核函数</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2020-01-01T20:02:00+08:00">
+<abbr class="published" title="2020-01-01T20:02:00+08:00">
                 Published: 2020-01-01
         </abbr>
-
-        <address class="vcard author">
+<address class="vcard author">
                 By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
-        </address>
+</address>
 <p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
-
 </footer><!-- /.post-info --><blockquote>
 <p>在 <a href="https://zhuanlan.zhihu.com/p/76040792"> SVM(一) </a> 和 <a href="https://zhuanlan.zhihu.com/p/82732640"> SVM(二)
 </a> 中，从 <strong>感知机</strong> 到 <strong>SVM损失函数</strong> 再到
@@ -37,15 +34,15 @@
 <h2>软间隔线性可分SVM</h2>
 <p>首先依旧是给定数据集  <span class="math">\(D={(x^{(1)}, y^{(1)}), (x^{(2)},
 y^{(2)}),...,(x^{(N)}, y^{(N)})}\)</span>  ，其中  <span class="math">\(x^{(i)}\in R^n\)</span>
-<span class="math">\(y^{(i)}\in {-1, +1}\)</span>  <span class="math">\(i = 1,2...,N\)</span>  ，前面的问题中
+<span class="math">\(y^{(i)}\in {-1, +1}\)</span> <span class="math">\(i = 1,2...,N\)</span>  ，前面的问题中
 <strong>前提是数据一定得是线性可分</strong> 的，我们这里也假定数据是线性可分的，但是硬间隔不存在，也就是说 <strong>一些噪声或者叫异常点在间隔中干扰了硬间隔</strong>
 ，导致找不到一个传统意义上的硬间隔。</p>
 <p>此时既然仍然是线性可分的，那就还是可以在数据中画出一个超平面尽最大限度的分好正负例，且能找到最大间隔，只不过间隔是有“误差”的，换句话就是说，此时允许一定的“误差”落在间隔中，这种间隔就叫做
 <strong>软间隔</strong></p>
-<p><img alt="svm软间隔" src="https://reed-qu.github.io/images/svm3_soft_margin.jpg"></p>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/svm3_soft_margin.jpg"/></p>
 <p>从图中可以清楚的看出来，相较于硬间隔，软间隔允许有 <strong>错分数据</strong> 在间隔内，此时在数学上达到这种效果的方法就是给每一个样本点一个 <strong>松弛变量</strong>
 <span class="math">\(\xi\)</span>  ，且和最大间隔  <span class="math">\(\frac{1}{2}||\theta||^2\)</span>  之间加一个
-<strong>惩罚参数来控制二者的“权重” <span class="math">\(C\)</span>  </strong> ，比如  <span class="math">\(C=+\infty\)</span>
+<strong>惩罚参数来控制二者的“权重” <span class="math">\(C\)</span> </strong> ，比如  <span class="math">\(C=+\infty\)</span>
 时其实就相当于不允许有任何误差，也就容易过拟合，所以软、硬间隔线性可分SVM二者的损失函数是类似的，主要差别即在 <strong>松弛变量</strong>
 这部分，定义软间隔线性可分SVM损失函数为</p>
 <div class="math">$$
@@ -104,13 +101,13 @@ $$</div>
     \end{aligned}
 \end{equation}
 $$</div>
-<p><strong>从对偶问题的形式也可以看出来，相较于硬间隔SVM来说，只是对拉格朗日乘子的上限做了限制，上限就是 <span class="math">\(C\)</span>  </strong></p>
+<p><strong>从对偶问题的形式也可以看出来，相较于硬间隔SVM来说，只是对拉格朗日乘子的上限做了限制，上限就是 <span class="math">\(C\)</span> </strong></p>
 <h2>核方法</h2>
 <p>软间隔线性可分依然是线性可分，假如真实的数据是线性不可分的情况SVM能不能处理，怎么处理？比如说数据分布如下图(左)，这时候是数据线性不可分，但是在可视化图中是能够很清楚的知道这些数据应该怎么划分，这里超平面应该是一个圆，但是我们不能完全依赖数据可视化，超过3维肉眼就很难看出来了，
 <strong>这时候的一个思路是经过一个特殊的转化(下图 <span class="math">\(\phi(x)\)</span>
 )，把这些数据变成线性可分的(下图右)，那么就可以利用线性可分SVM来处理了 </strong>
 ，核方法就是这么处理的。其实核方法不是只在SVM中出现，核方法是一个纯粹的数学方法，其解决的问题就是 <strong>数据映射到高维空间中计算量过于复杂</strong> 的问题</p>
-<p><img alt="svm核方法" src="https://reed-qu.github.io/images/svm3_kernel.jpg"></p>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/svm3_kernel.png"/></p>
 <p>根据线性可分SVM中推导的公式来看，最终的目标函数只是与  <span class="math">\(x^{(i)},x^{(j)}\)</span>  的 <strong>内积</strong>
 有关，然后对于线性不可分的数据定义某种线性变化</p>
 <p><span class="math">\(x\rightarrow \phi(x)\\\\)</span></p>
@@ -177,7 +174,7 @@ SVM(二)拉格朗日对偶式 </a> </strong>
 <li><em>较依赖好的特征工程，特别是缺失值</em></li>
 </ol>
 <p><strong>最后感谢李航老师的《统计学习方法 第二版》 [1]  ，对我个人理解SVM有很大帮助。 </strong></p>
-<hr>
+<hr/>
 <p>😛</p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
@@ -240,33 +237,29 @@ SVM(二)拉格朗日对偶式 </a> </strong>
     (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
-</script>                </article>
-            </aside><!-- /#featured -->
-        <section id="extras" class="body">
-                <div class="blogroll">
-                        <h2>about me</h2>
-                        <ul>
-                            <li><a href="https://github.com/reedwave">github</a></li>
-                            <li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
-                            <li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
-                        </ul>
-                </div><!-- /.blogroll -->
-                <div class="social">
-                        <h2>social</h2>
-                        <ul>
-                            <li><a href="https://reed-qu.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
-
-                        </ul>
-                </div><!-- /.social -->
-        </section><!-- /#extras -->
-
-        <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
+</script> </article>
+</aside><!-- /#featured -->
+<section class="body" id="extras">
+<div class="blogroll">
+<h2>about me</h2>
+<ul>
+<li><a href="https://github.com/reedwave">github</a></li>
+<li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
+<li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
+</ul>
+</div><!-- /.blogroll -->
+<div class="social">
+<h2>social</h2>
+<ul>
+<li><a href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" type="application/atom+xml">atom feed</a></li>
+</ul>
+</div><!-- /.social -->
+</section><!-- /#extras -->
+<footer class="body" id="contentinfo">
+<address class="vcard body" id="about">
                 Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
                 </address><!-- /#about -->
-
-                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
-        </footer><!-- /#contentinfo -->
-
+<p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+</footer><!-- /#contentinfo -->
 </body>
 </html>
