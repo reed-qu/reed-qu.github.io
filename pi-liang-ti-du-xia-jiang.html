@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>批量梯度下降</title>
+<link href="https://reed-qu.github.io/theme/css/main.css" rel="stylesheet"/>
+<link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" type="application/atom+xml"/>
+</head>
+<body class="home" id="index">
+<header class="body" id="banner">
+<h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
+<nav><ul>
+<li class="active"><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
+</ul></nav>
+</header><!-- /#banner -->
+<section class="body" id="content">
+<article>
+<header>
+<h1 class="entry-title">
+<a href="https://reed-qu.github.io/pi-liang-ti-du-xia-jiang.html" rel="bookmark" title="Permalink to 批量梯度下降">批量梯度下降</a></h1>
+</header>
+<div class="entry-content">
+<footer class="post-info">
+<abbr class="published" title="2020-01-21T14:58:57+08:00">
+                Published: 2020-01-21
+        </abbr>
+<address class="vcard author">
+                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
+</address>
+<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
+</footer><!-- /.post-info --> <blockquote>
+<p>在机器学习问题中，基本上都是基于特定的损失函数，来迭代优化这个函数值，既然是损失函数，代表的是损失的多少，所以通常是寻找最小值，梯度下降法即是一种不断寻找函数极值点的方法，通常用“人物下山”来举例子，考虑你现在山上的某一点，你想要快速下山，这个过程有3点是需要确定的，才能完成这个动作</p>
+</blockquote>
+<ul>
+<li>我一步能迈多远，步子越大当然速度就越快</li>
+<li>方向，当然要往下走，而且是越陡越好</li>
+<li>走到”谷底“的时候就停止</li>
+</ul>
+<h2><strong>梯度</strong></h2>
+<p>梯度即函数收敛过程中，变化最快的方向，这样才不会走偏而“绕远”，这里从微积分开始说起</p>
+<p><strong>微积分</strong>，可以理解为函数某点上的斜率，下面大概举几个例子 </p>
+<div class="math">$$
+\frac{d(x^3)}{dx}=3x^2\\
+$$</div>
+<div class="math">$$
+\frac{d(x^n)}{dx}=nx^{n-1}\\
+$$</div>
+<div class="math">$$
+\frac{\partial}{\partial x}(x^2y^2)=2xy^2\\
+$$</div>
+<p><strong>梯度</strong>，就是多变量微分，最终的梯度也就是1个向量, 代表在各个方向上的分量  <span class="math">\(\theta\)</span>  在这时为一个向量 </p>
+<div class="math">$$
+J(\theta)=2 - (-\theta_1 + 2\theta_2 + 0.5\theta_3)\\
+$$</div>
+<div class="math">$$\frac{\partial J(\theta)}{\partial \theta}=[\frac{\partial
+J}{\partial \theta_1}, \frac{\partial J}{\partial \theta_2}, \frac{\partial
+J}{\partial \theta_3}]=[1, -2, -0.5]\\
+$$</div>
+<p><strong>梯度</strong>就是那个下降最快的方向，具体的梯度下降的公式下面解释，这里举一个<strong>线性回归</strong>的例子</p>
+<h2><strong>线性回归</strong></h2>
+<p>我们有若干数据，想要拟合出一条合理的回归线，我们就可以用梯度下降不断迭代求出这条直线的2个参数  <span class="math">\(\theta_0,\theta_1\)</span>  ，即  <span class="math">\(f(x) = \theta_0 + \theta_1 x_1\)</span></p>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/gd_line_reg.png"/></p>
+<ol>
+<li>这里 <strong>红叉表示样本点</strong> ，现在我们想拟合出1条 <strong>最合理的直线</strong> (绿色)来代表随机变量的趋势，这时候就可以用梯度下降来解决这个问题 </li>
+<li>思考一个问题，就是我们如何用数学的方式来判断某条直线就是我们想要的直线，显然这条直线不能离样本点太远，否则效果就太差了，要“雨露均沾”的距离样本点足够近才足够好 </li>
+<li>这里用 <strong>距离误差平方和</strong> 的方式表示，也就是当前的直线到样本点的距离的平方的和，我们想要优化的就是 <strong>样本点到直线的距离的平方和为最小，</strong> 这时候我们认为该条直线就是我们所要的，下面通过这个线性回归的例子来一步一步解释梯度下降 </li>
+</ol>
+<p><strong>Step 1</strong> . 随机给一个  <span class="math">\(\theta_0, \theta_1\)</span>
+，这里就是橙色这条线，当然也可以是其他的值，我们假设的函数叫做  <span class="math">\(H(\theta)\)</span></p>
+<p><strong>Step 2</strong> . 计算样本点到橙色线的距离，这个误差项我们叫做 <strong>损失值</strong> , 误差函数叫 <strong>损失函数</strong> 即为各点到
+<span class="math">\(H(\theta)\)</span>  的距离平方和</p>
+<div class="math">$$
+CostFunction = J(\theta) =
+\frac{1}{2N}\sum_{i=1}^{N}(H_\theta(x^{(i)}) - y^{(i)})^2\\
+$$</div>
+<p>这里  <span class="math">\(x^{(i)}, y^{(i)}\)</span>  为第 <strong>i</strong> 个坐标点(x, y);  <span class="math">\(\frac{1}{2}\)</span>  则为一种数学上的 <strong>方便计算</strong> 的系数，使得求偏导数的时候与平方项能约掉，对优化问题并不产生影响</p>
+<p><strong>Step 3</strong> . 我们想要求得的就是上面的损失函数的最低点，这里就用到梯度下降的算法，计算偏导数</p>
+<div class="math">$$
+\frac{\partial J(\theta)}{\partial \theta} = [\frac{\partial
+J(\theta)}{\partial \theta_0}, \frac{\partial J(\theta)}{\partial
+\theta_1}...\frac{\partial J(\theta)}{\partial \theta_j}]\\
+$$</div>
+<div class="math">$$
+\frac{\partial J(\theta)}{\theta_j} =
+\frac{1}{N}\sum_{i=1}^{N}(H_\theta(x^{(i)}) - y^{(i)}) x_j^{(i)}\\
+$$</div>
+<div class="math">$$
+\theta_j = \theta_j^{'} - \alpha \frac{\partial
+J(\theta)}{\partial \theta_j}\\
+$$</div>
+<ul>
+<li><span class="math">\(\alpha\)</span>  代表 <strong>步长</strong> , 即是每次迭代的速度,  <span class="math">\(\alpha\)</span>  的大小设置是1个经验值，太大容易错过最低点直接一步迈到另外一边的山腰上，太小容易走得太慢，走半天还没走到山底 </li>
+<li><span class="math">\(\theta\)</span>  是一个向量，所以  <span class="math">\(\theta_j\)</span>  要 <strong>同时更新</strong></li>
+<li><strong>?</strong> 为什么要向梯度的负方向移动，从下图很容易看出来，最低点的右边梯度&gt;0则向左移动，反之向右移动，即总是向梯度的反方向移动 </li>
+</ul>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/gd.png"/></p>
+<p><strong>Step 4</strong> . 如上图展示，我们要做的就是从  <span class="math">\(A\)</span>  点一步一步走到最低点，得到 <strong>损失函数</strong>
+的最小值，我们就认为，此时的  <span class="math">\(\theta\)</span>  为最优状态</p>
+<h2><strong>举个例子</strong></h2>
+<p>假设我们有一个  <span class="math">\(J(\theta) = \theta_0^2 + \theta_1^2\)</span>  , 
+那么<span class="math">\(\frac{\partial J(\theta)}{\partial \theta} = 2\theta_0 + 2\theta_1\)</span>  ，
+这里  <span class="math">\(\alpha=0.1\)</span>  ，初始化  <span class="math">\( \theta^{(0)} = [1, 3]\)</span>  ，
+我们已知这个函数的最小值为  <span class="math">\([0, 0]\)</span></p>
+<div class="math">$$
+\begin{aligned}
+    \theta^{(1)} &amp;= [1, 3] - 0.1 \times [2\times1, 2\times3] = [1, 3] - [0.2, 0.6] = [0.8, 2.4]\\
+    \theta^{(2)} &amp;= [0.8, 2.4]-0.1\times[2\times0.8, 2\times2.4]=[0.8, 2.4]-[0.16, 0.48]=[0.64, 1.92]\\
+    \theta^{(3)} &amp;= [0.64, 1.92] - 0.1 \times [2\times0.64, 2\times1.92] = [0.64, 1.92] - [0.128, 0.384] = [0.512, 1.536]\\
+    &amp;\vdots\\
+    \theta^{(100)} &amp;= [1.63e^{-10}, 4.89e^{-10}]
+\end{aligned}\\
+$$</div>
+<h2><strong>总结</strong></h2>
+<p>损失函数的优化方法有很多，即便是梯度下降也有很多更好的实现方法，比如工程上更常用的<strong>小批量梯度下降</strong>或者<strong>随机梯度下降</strong>，本文讨论是最基本的<strong>批量梯度下降</strong>，即每”下降“一次都要用全量的数据来计算，在实际生产环境中这个数据量往往是很大的，这么做很影响算法的性能，所以提出了小批量梯度下降或者随机梯度下降，思想就是用比较少的数据来计算梯度，降低计算量，但是算法核心是不变的。</p>
+<hr/>
+<p>😛</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+</div><!-- /.entry-content -->
+</article>
+</section>
+<section class="body" id="extras">
+<div class="blogroll">
+<h2>about me</h2>
+<ul>
+<li><a href="https://github.com/reedwave">github</a></li>
+<li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
+<li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
+</ul>
+</div><!-- /.blogroll -->
+<div class="social">
+<h2>social</h2>
+<ul>
+<li><a href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" type="application/atom+xml">atom feed</a></li>
+</ul>
+</div><!-- /.social -->
+</section><!-- /#extras -->
+<footer class="body" id="contentinfo">
+<address class="vcard body" id="about">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+<p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+</footer><!-- /#contentinfo -->
+</body>
+</html>

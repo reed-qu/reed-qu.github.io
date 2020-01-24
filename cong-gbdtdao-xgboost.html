@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>从GBDT到XGBoost</title>
+<link href="https://reed-qu.github.io/theme/css/main.css" rel="stylesheet"/>
+<link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" type="application/atom+xml"/>
+</head>
+<body class="home" id="index">
+<header class="body" id="banner">
+<h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
+<nav><ul>
+<li class="active"><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
+</ul></nav>
+</header><!-- /#banner -->
+<section class="body" id="content">
+<article>
+<header>
+<h1 class="entry-title">
+<a href="https://reed-qu.github.io/cong-gbdtdao-xgboost.html" rel="bookmark" title="Permalink to 从GBDT到XGBoost">从GBDT到XGBoost</a></h1>
+</header>
+<div class="entry-content">
+<footer class="post-info">
+<abbr class="published" title="2020-01-24T15:42:53+08:00">
+                Published: 2020-01-24
+        </abbr>
+<address class="vcard author">
+                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
+</address>
+<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
+</footer><!-- /.post-info --> <blockquote>
+<p>这次继续聊Boosting模型，上一篇聊了AdaBoost，AdaBoost的核心思想是通过提升错分的数据权重，来更关注错分的数据，同时根据每次迭代的正确率来给当前的弱模型一个权重，这个弱模型准确率越高，则这个弱模型的权重就越大，这是合理的，但是其实这样还是不够直接，更直接的做法是比如说第一次训练了一个弱模型，这个弱模型肯定不会是100%完美的，肯定会存在一定的误差(残差)，此时更直接的想法就是我再<strong>训练一个模型来把这部分误差学习出来</strong>，然后两个模型叠加就可以了，但是此时肯定还不是完美的，不要紧，下一次迭代的时候再学习剩下部分的误差，从而让误差越来越小，这就是今天要聊的GBDT的所做的事情。</p>
+</blockquote>
+<h2><strong>梯度提升树 GBDT</strong></h2>
+<p>类似Boosting的思想，GBDT也是采用 <strong>分步迭代</strong> 学习弱模型的方式来学习最终的模型的，但是这里是学习了一个弱模型之后，在不改变这个弱模型也不改变数据的权重(<code>AdaBoost</code>)的基础上，学习另外一个弱模型，然后二者组合起来作为第二轮的模型，这样在不断学习并且模型不断累加的过程中让这些弱模型组合成表现更好的强模型</p>
+<p>假设现在有数据集  <span class="math">\(D={(x^{(1)},y^{(1)}),(x^{(2)},y^{(2)}),\cdots,(x^{(N)},y^{(N)})}\)</span>  ，其中 <span class="math">\( x^{(i)}\in R^n\)</span>  ，在第一轮的时候初始化一个树结构模型：  <span class="math">\( H_0(x) =0\)</span>  ，就是说对每一个输入的  <span class="math">\( x\)</span>  都给同一个值，这里是  <span class="math">\( 0\)</span> 当然也可以是其他数字，比如 <strong>均值</strong> 可能比  <span class="math">\( 0\)</span>  会更好一些，有了第一步那么后面就可以一步一步的迭代计算了，得到第 <span class="math">\( m\)</span>  轮的模型</p>
+<div class="math">$$
+\begin{aligned}
+    H_0(x)&amp;=0\\
+    H_1(x)&amp;=H_0(x)+T_1(x;\Theta)\\
+    H_2(x)&amp;=H_1(x)+T_2(x;\Theta)\\
+    &amp;\vdots\\
+    H_m(x)&amp;= H_{m-1}(x) +T_m(x;\Theta)\\
+\end{aligned}\\
+$$</div>
+<p><span class="math">\( H_m(x)\)</span>  为第  <span class="math">\( m\)</span>  的模型，  <span class="math">\(H_{m-1}(x)\)</span>  是上一轮的已知的模型，  <span class="math">\( T_m(x;\Theta)\)</span>  就是第  <span class="math">\(m\)</span>  轮需要加进来的树模型，是需要学习的，这里  <span class="math">\( \Theta\)</span>  表示这棵树的结构，包括 <strong>区域划分</strong> 和<strong>各区域内的预测值</strong> ，我们想要让这个  <span class="math">\( T_m(x;\Theta)\)</span> 加进来之后模型变得更好也就是损失变得更小，我们就可以这么估计这个  <span class="math">\( T_m(x;\Theta)\)</span></p>
+<div class="math">$$
+\hat\Theta_m=\mathop{argmin}_{\Theta_m}\sum_{i=1}^{N}{L(y^{(i)},H_{m-1}(x^{(i)})+T_m(x^{(i)};\Theta))}\\
+$$</div>
+<p>这样优化这个函数，来求得  <span class="math">\( \hat\Theta_m\)</span>  也就是第  <span class="math">\( m\)</span>  棵树
+<span class="math">\( T_m(x;\Theta)\)</span>  的参数，确定了参数也就确定了加进来的这棵树是什么样的了，就得到了第 <span class="math">\( m\)</span>  轮的模型，下一轮再加进来一棵树直到最后损失收敛，这里  <span class="math">\( L(a, b)\)</span>
+表示二者的某种损失函数  <span class="math">\( Loss Function\)</span></p>
+<p>回归问题中一般用 <strong>均方误差</strong> 损失</p>
+<div class="math">$$
+L(y, f(x)) = \frac{1}{2}(y-f(x))^2\\
+$$</div>
+<p>分类问题中一般用  <span class="math">\( logistic\)</span>  损失</p>
+<div class="math">$$
+L(y, f(x)) = f(x)ln(1+e^{-f(x)})+(1-f(x))ln(1+e^{f(x)})\\
+$$</div>
+<p>这里以均方误差损失为例，上式的损失函数就是</p>
+<div class="math">$$
+\begin{aligned}
+    L(y^{(i)},H_{m-1}(x^{(i)})+T_m(x^{(i)};\Theta))&amp;=(y^{(i)}-H_{m-1}(x^{(i)})-T_m(x^{(i)})^2\\
+    &amp;=(residual-T_m(x^{(i)}))^2
+\end{aligned}\\
+$$</div>
+<p><strong><em>residual</em></strong> 就是所谓的残差  <span class="math">\( y^{(i)}-H_{m-1}(x^{(i)})\)</span> ，即本轮学习之后仍然存在的误差，本轮需要加进去的这棵树就是照着残差去学习出来的树结构，其实也可以从梯度的角度来理解，针对平方损失函数 <span class="math">\( L(y, f(x)) = \frac{1}{2}(y-f(x))^2\)</span>  ，  <span class="math">\( f(x)\)</span> 为某一轮结束时的累加起来的模型，此时应该沿着 <strong>损失的负梯度方向</strong> 继续前进，也就是</p>
+<div class="math">$$
+-\frac{\partial L(y, f(x))}{\partial f(x)}=y-f(x)=residual \\
+$$</div>
+<p>其实也是一样的，最终得到的模型就是  <span class="math">\( H(x) = \sum_{m=1}^{M}{T_m(x;\Theta)}\)</span>  ，将 <span class="math">\( m\)</span>  轮学习到的树模型累加在一起作为最终模型输出</p>
+<p>下图比较清晰的解释了这一过程， <strong>红色的✘</strong> 是数据点，  <span class="math">\( j\)</span> 为找到的分割点(这里是一颗CART)，左右两部分分别的预测值就是 <strong>橙色的实折线</strong> ，发现并没有拟合的特别好， <strong>绿色的虚线</strong> 为预测值到真实值的误差，也就是我们所谓的残差，这时候就可以将绿色这部分的值作为另一颗CART训练的数据，最终形成 <strong>紫色的虚折线</strong>，很明显紫色的线要比橙色的线做的要好</p>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/xgb_cart.jpg"/></p>
+<p>但是 <strong>残差的这种形式只针对于回归问题中的平方损失函数</strong>，如果换了其他损失函数就没这么简单了，但是计算方式和上面推导的过程是一样的，只不过不能简单是用残差来学习本轮的树模型，而是要沿着损失的负梯度 <span class="math">\( -\frac{\partial L(y, f(x))}{\partial f(x)}\)</span>  的方向来学习</p>
+<p><strong>GBDT也有一些弊端</strong> ，虽然有尚可的解决方案但是效果还是不是很好，主要有以下几点：</p>
+<p>1. 对于平方损失来说，对 <strong>噪声数据很敏感</strong> ，因为此时损失为残差的平方，这样就加大了模型对这些噪声数据的关注度，容易过拟合，解决办法就是换一种损失函数，让损失不会过分放大，比如说 <strong>绝对值损失</strong> <span class="math">\( L(y, f(x)) = |y-f(x)|\)</span>  ，或者 <strong>Huber损失</strong> 来解决</p>
+<div class="math">$$L(y, f(x)) =
+\begin{cases}
+    \frac{1}{2}(y-f(x))^2&amp; \text{|y-f(x)|≤δ}\\
+    \delta(|y-f(x)|-\frac{\delta}{2})&amp; \text{|y-f(x)|&gt;δ}
+\end{cases}\\
+$$</div>
+<p>2. 树模型”准确“的照着残差的方式去学习，很容易出现 <strong>Z形学习曲线</strong> ，步长过大，让模型更不易收敛，解决的办法就是为  <span class="math">\( T_m(x;\Theta)\)</span> 添加一个<strong><em>shrinkage</em></strong> ，变成  <span class="math">\( \epsilon T_m(x;\Theta)\)</span>  让步子小一点，这里  <span class="math">\( \epsilon\)</span>  类似于学习速率一般为一个很小的小数来控制每一次学习的幅度 </p>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/xgb_z.jpg"/></p>
+<p>针对GBDT的各种问题，陈天奇博士在论文中给出了更优的解决办法，就是 <strong><a href="https://homes.cs.washington.edu/~tqchen/pdf/BoostedTree.pdf">XGBoost</a></strong>，基于GBDT的思想做出了各种优化，比如算法层面添加<strong>正则化项</strong> 让模型更简单，一定程度的避免过拟合，还有在损失函数上进行了 <strong>二阶泰勒展开</strong> ，提升模型的精度，还有工程层面尽最大可能的<strong>并行处理</strong> ，让训练效率更高，更有在特征工程层面上对 <strong>缺失值的处理</strong> 优化等等，这些优化也让XGB在一些竞赛中取得了很好的成绩</p>
+<h2><strong>加强版的GBDT XGBoost</strong></h2>
+<p>XGB最终的模型和GBDT是一样的，为  <span class="math">\( H(x) = \sum_{m=1}^{M}{T_m(x;
+\Theta)},T_m\in F\)</span>  ，也是基于加法的树模型，但是XGB的损失函数相较于GBDT略有不同，这里加了正则化项，在回归问题中正则化项一般有<strong>L1-norm(LASSO)</strong> <span class="math">\( \lambda||\theta||_1\)</span>  和 <strong>L2-norm(Ridge)</strong> <span class="math">\( \lambda||\theta||_2\)</span>  这里  <span class="math">\( \theta\)</span> 为各个特征的系数，在这里即为 <strong>树模型的结构复杂度</strong> ，比如 <strong>叶子节点的数量</strong> 和 <strong>树的深度</strong> 还有 <strong>叶子节点中多个样本的L2-norm</strong> ，XGB中第  <span class="math">\( m\)</span>  轮的损失函数就为</p>
+<div class="math">$$
+Loss_m={\sum_{i=1}^{N}{l(y^{(i)},H_m(x^{(i)}))}}+\Omega(T_m)\\
+$$</div>
+<p>其中  <span class="math">\( \Omega(T_m)\)</span> 就是XGB中的正则化项，代表本轮需要加进去的这个树模型的复杂度，这里我们同时考虑回归问题中的均方误差损失和  <span class="math">\( H_m(x)= H_{m-1}(x) + T_m(x;\Theta)\)</span>  ，可以进一步得出损失函数</p>
+<div class="math">$$
+\begin{aligned}
+    Loss_m &amp;=\sum_{i=1}^{N}{l(y^{(i)}, H_m(x^{(i)}))+\Omega(T_m(x;\Theta))}\\
+    &amp;=\sum_{i=1}^{N}{l(y^{(i)}, H_{m-1}(x^{(i)}) +T_m(x;\Theta))+\Omega(T_m(x;\Theta))}\\
+    &amp;=\sum_{i=1}^{N}{[(y^{(i)}-H_{m-1}(x^{(i)}))-T_m(x;\Theta)]^2}
++\Omega(T_m(x;\Theta))
+\end{aligned}\\
+$$</div>
+<p>此时其实就是加了 <strong>正则化项的残差</strong> 拟合方式，如果换了其他损失这里还是不容易解决的，XGB的关键点就在这一处，XGB用了<strong>泰勒公式的二阶展开式来对损失近似求解</strong> ，同时也使得XGB更通用，只要损失函数二阶可导都可以应用这种方法处理，用户甚至可以自己定义二阶可导的损失函数</p>
+<p>首先 <strong>泰勒公式</strong> 的二阶展开式为</p>
+<div class="math">$$
+f(x+\Delta x) \simeq f(x) + f^{'}(x)\Delta x + \frac{1}{2!}f^{''}(x)\Delta x^2\\
+$$</div>
+<p>其次需要解释的是  <span class="math">\( l(y^{(i)},H_{m-1}(x^{(i)}) + T_m(x;\Theta))\)</span>  中  <span class="math">\( T_m(x;\Theta)\)</span>  相较于从 <span class="math">\( 1\)</span>  到  <span class="math">\( m-1\)</span>  轮的所有树相加是很小的，所以泰勒展开式中的 <span class="math">\( \Delta x\)</span>  就是这里的  <span class="math">\( T_m(x;\Theta)\)</span>  ，而 <span class="math">\( f(x)\)</span>  对应这里的就是  <span class="math">\( l(y^{(i)}, H_{m-1}(x^{(i)}))\)</span> ，我们的损失函数就可以写成</p>
+<div class="math">$$
+Loss_m\simeq\sum_{i=1}^{N}{[l(y^{(i)},H_{m-1}(x^{(i)}))+g^{(i)} T_m(x;\Theta)+\frac{1}{2}h^{(i)} T_m^2(x;\Theta)]}+\Omega(T_m(x;\Theta))\\
+$$</div>
+<p>其中  <span class="math">\( g\)</span>  为一阶导，  <span class="math">\( h\)</span>  为二阶导，这里  <span class="math">\(l(y^{(i)}, H_{m-1}(x^{(i)}))\)</span>  为 <strong>常数项</strong> 所以在损失函数中可以舍掉，主要关注  <span class="math">\( g\)</span> 和  <span class="math">\( h\)</span>  ，这里为了计算方便依旧 <strong>考虑平方损失函数</strong></p>
+<div class="math">$$
+g = \frac{\partial^{'} l(y, H(x))}{\partial H(x)}=2(H(x)-y)\\
+$$</div>
+<div class="math">$$
+h = \frac{\partial^{''} l(y, H(x))}{\partial H(x)}=2\\
+$$</div>
+<p>最终的需要关注的损失函数就是</p>
+<div class="math">$$Loss_m\simeq\sum_{i=1}^{N}{[g^{(i)}T_m(x;\Theta)+\frac{1}{2}h^{(i)} T_m^2(x;\Theta)]}+\Omega(T_m(x;\Theta))\\
+$$</div>
+<p>也就是说主要求出当前第  <span class="math">\( m-1\)</span>  轮的模型的一阶导数和二阶导数然后最优化  <span class="math">\( Loss\)</span>
+就可以得到每一轮的  <span class="math">\( T_m(x;\Theta)\)</span></p>
+<p>然后考虑正则化项  <span class="math">\( \Omega(T_m(x;\Theta))\)</span>  ，我们用 <strong>叶子节点的数量</strong>
+<span class="math">\( T\)</span>  ，和 <strong>每个叶子节点中的得分</strong> <span class="math">\( w\)</span> (虽然一个叶子节点中有多个样本，但是是用一个值来作为这个叶子节点的输出的)来衡量模型的复杂度，以下图解引用陈天奇博士PPT中的图解，PPT中表示为 <span class="math">\(\Omega(f_t)\)</span> </p>
+<div class="math">$$
+\Omega(T_m(x;\Theta)) = \gamma T+\frac{1}{2}\lambda \sum_{j=1}^{T}{w_j^2}\\
+$$</div>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/xgb_regularization.jpg"/></p>
+<p>这里  <span class="math">\( \gamma\)</span>  和  <span class="math">\( \lambda\)</span> 就是一个因子系数，表示正则化项中更关注哪一部分， <strong>用 <span class="math">\( I_j\)</span>  表示第  <span class="math">\( j\)</span> 个叶子节点中的样本集合 (  <span class="math">\( j\)</span>  对于CART来说就是从根节点开始不断的找到收益最大的分裂点 <span class="math">\( s\)</span>  来二划分</strong> )，此时损失函数就可以转化成下面这样</p>
+<div class="math">$$
+\begin{aligned}
+    Loss_m&amp; \simeq \sum_{i=1}^{N}{[g^{(i)}T_m(x;\Theta)+\frac{1}{2}h^{(i)} T_m^2(x;\Theta)]}+\gamma T+\frac{1}{2}\lambda \sum_{j=1}^{T}{w_j^2}\\
+    &amp; \simeq \sum_{j=1}^{T}{[(\sum_{i\in I_j}^{}{g^{(i)}})w_j+\frac{1}{2}(\sum_{i\in I_j}^{}{h^{(i)}+\lambda})w_j^2]+\gamma T} \end{aligned}\\
+$$</div>
+<p>然后继续定义  <span class="math">\( \sum_{i\in I_j}^{}{g^{(i)}} = G_j\)</span>  ，  <span class="math">\(\sum_{i\in I_j}^{}{h^{(i)}} = H_j\)</span>  ，最终等式就可以写成</p>
+<div class="math">$$
+Loss_m\simeq\sum_{j=1}^{T}{\left[G_jw_j+\frac{1}{2}(H_j+\lambda)w_j^2 \right]+\gamma T}\\
+$$</div>
+<p>此时令  <span class="math">\( Loss\)</span>  的导数为  <span class="math">\( 0\)</span>  即可求得</p>
+<div class="math">$$
+w_j=-\frac{G_j}{H_j+\lambda}
+$$</div>
+<p>此时  <span class="math">\( Loss\)</span>  就可以简洁为</p>
+<div class="math">$$
+Loss\simeq-\frac{1}{2}\sum_{j=1}^{T}{\frac{G_j^2}{H_j+\lambda}+\gamma T}\\
+$$</div>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/xgb_loss.jpg"/></p>
+<p>到此为止一切都做的很不错，但是有一个问题就是  <span class="math">\( j\)</span>  ，我们并不知道这棵树是怎么划分的，也就是说第 <span class="math">\( j\)</span>  个叶子节点我们并不知道，这时候 <strong>暴力穷举树结构肯定是不可取</strong> 的，就需要根据我们的损失函数，<strong>寻找收益最大的分裂点来进行划分</strong> ，具体的步骤是这样的，这里定义 <strong>分裂点 <span class="math">\( s\)</span>  把样本划分为左右两部分</strong> (类似CART的划分方式，只不过用的目标函数不同)</p>
+<p>1. 计算 <strong>分裂前</strong> 的收益  </p>
+<div class="math">$$
+-\frac{1}{2}(\frac{(G_L+G_R)^2}{H_L+H_R+\lambda})+\gamma\\
+$$</div>
+<p>2. 计算 <strong>分裂后</strong> 的收益  </p>
+<div class="math">$$
+-\frac{1}{2}\frac{G_L^2}{H_L+\lambda}+\gamma +(-\frac{1}{2}\frac{G_L^2}{H_L+\lambda}+\gamma)\\
+$$</div>
+<p>3. <strong>分裂前收益-分裂后收益</strong> (  <span class="math">\( \frac{1}{2}\)</span>  这个可以舍掉)，找出 <strong>收益最大</strong> 的分裂点  <span class="math">\( s\)</span> </p>
+<div class="math">$$
+\frac{G_L^2}{H_L+\lambda}+\frac{G_R^2}{H_R+\lambda}-\frac{(G_L+G_R)^2}{H_L+H_R+\lambda}-\gamma\\\
+$$</div>
+<p>此时XGB中也可以 <strong>自动剪枝</strong> ，剪枝主要为两种方式：一种为在 <strong>训练过程中通过计算分裂收益判断是否要继续向下分裂</strong> (此时 <strong>考虑不到未来的分裂节点会带来正收益的情况</strong> )，二种为生成 <strong>完整的树结构之后，自下而上的逆向剪枝</strong></p>
+<p>4. 最后计算出树的结构也就确定了第  <span class="math">\( m\)</span>  轮需要加入的树模型  <span class="math">\( T_m(x;\Theta)\)</span>  ，形成最终的模型，这里也可以加一个 <strong><em>shrinkage</em></strong> 的学习速率  <span class="math">\(\epsilon\)</span>  ，来控制学习速度，给后面的学习留下一定的空间，最终的模型即是</p>
+<div class="math">$$
+H_m(x) = H_{m-1}(x) + \epsilon T_m(x; \Theta)\\
+$$</div>
+<hr/>
+<p>😛</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+</div><!-- /.entry-content -->
+</article>
+</section>
+<section class="body" id="extras">
+<div class="blogroll">
+<h2>about me</h2>
+<ul>
+<li><a href="https://github.com/reedwave">github</a></li>
+<li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
+<li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
+</ul>
+</div><!-- /.blogroll -->
+<div class="social">
+<h2>social</h2>
+<ul>
+<li><a href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" type="application/atom+xml">atom feed</a></li>
+</ul>
+</div><!-- /.social -->
+</section><!-- /#extras -->
+<footer class="body" id="contentinfo">
+<address class="vcard body" id="about">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+<p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+</footer><!-- /#contentinfo -->
+</body>
+</html>

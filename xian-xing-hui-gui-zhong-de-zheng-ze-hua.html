@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>线性回归中的正则化</title>
+<link href="https://reed-qu.github.io/theme/css/main.css" rel="stylesheet"/>
+<link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" type="application/atom+xml"/>
+</head>
+<body class="home" id="index">
+<header class="body" id="banner">
+<h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
+<nav><ul>
+<li class="active"><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
+</ul></nav>
+</header><!-- /#banner -->
+<section class="body" id="content">
+<article>
+<header>
+<h1 class="entry-title">
+<a href="https://reed-qu.github.io/xian-xing-hui-gui-zhong-de-zheng-ze-hua.html" rel="bookmark" title="Permalink to 线性回归中的正则化">线性回归中的正则化</a></h1>
+</header>
+<div class="entry-content">
+<footer class="post-info">
+<abbr class="published" title="2020-01-22T23:21:04+08:00">
+                Published: 2020-01-22
+        </abbr>
+<address class="vcard author">
+                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
+</address>
+<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
+</footer><!-- /.post-info --> <blockquote>
+<p>今天的话题从线性回归开始，在应对线性回归问题的时候，实质上就是训练1个函数  <span class="math">\(f(X) = \theta^TX = Y\)</span>，这个等式可以通过我之前的文章 <a href="https://reed-qu.github.io/pu-tong-zui-xiao-er-cheng-fa.html"> 最小二乘法 </a> 来计算，即 <span class="math">\(\theta = (X^TX)^{-1}X^TY\)</span>  ，但是由于最小二乘法需要计算矩阵的逆，所以有很多的限制，比如<strong>矩阵不可逆</strong> ，又或者矩阵中有 <strong>多重共线性</strong> 的情况，会导致计算矩阵的逆的时候行列式接近0，对数据很敏感，还有可能在训练模型的时候有<strong>过拟合</strong>的情况出现(如下图，第3个图的曲线精确的学习到了所有的数据点，显然就是过拟合了)，下面这里通过解决实际问题，一点一点推算出来解决这些问题的2种方法：<strong><em>L1</em></strong> 和 <strong><em>L2</em></strong> 正则化。</p>
+</blockquote>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/regularization.jpg"/></p>
+<h2><strong>L2正则化</strong></h2>
+<p>先说一下<strong>L2正则化</strong>的思想，开篇提到过，最小二乘法有很多限制和很多弊端，比如 <strong>多重共线性</strong> 这个问题，由于需要计算矩阵的逆，所以训练出的模型系数往往会比较大_(行列式接近0)_ ，这样模型会很不稳定，所以大牛们就想啊，能不能给最小二乘法加上点 <strong><em>惩罚</em></strong>，让这个系数小一些，模型更稳定，泛化能力更好，于是就有了这个方法。</p>
+<p>L2正则化即是在最小二乘法的基础上，加1个对系数的 <strong><em>“惩罚项”</em></strong> ，为了方便计算所以加上的是 <strong><em>L2-norm</em></strong> 的平方，这时候损失函数就为</p>
+<div class="math">$$
+J(\theta) = \frac{1}{2N}\sum_{i=1}^{N}{(H_\theta(x^{(i)})-y^{(i)})^2} + \frac{\lambda}{2}||\theta||_2^2\\
+$$</div>
+<p>这里添加了一个  <span class="math">\(\frac{\lambda}{2} ||\theta||_2^2\)</span>  就是 <strong>L2</strong> 正则化做的事情，是为了考虑损失的同时还要兼顾模型也就是  <span class="math">\(\theta\)</span>  的大小，不让  <span class="math">\(\theta\)</span>  变成1个很大的数，从而避免过拟合或者说让模型更简单，泛化能力更强，然后对  <span class="math">\(J(\theta)\)</span>  求导。</p>
+<div class="math">$$
+\frac{\partial J(\theta)}{\partial \theta_j} = \frac{1}{N}\sum_{i=1}^{N}{(H_\theta(x^{(i)})-y^{(i)})x_j} + \lambda \theta_j\\
+$$</div>
+<div class="math">$$
+\begin{aligned}
+    \theta_j^{'} &amp;= \theta_j - \alpha\frac{\partial J(\theta)}{\partial \theta_j}\\
+    &amp;= \theta_j - \alpha(\frac{1}{N}\sum_{i=1}^{N}{(H_\theta(x^{(i)})-y^{(i)})x_j} + \lambda\theta_j)\\
+    &amp;= \theta_j - \alpha \lambda \theta_j - \alpha(\frac{1}{N}\sum_{i=1}^{N}{(H_\theta(x^{(i)})-y^{(i)})x_j})\\
+    &amp;=(1-\alpha\lambda)\theta_j - \alpha(\frac{1}{N}\sum_{i=1}^{N}{(H_\theta(x^{(i)})-y^{(i)})x_j})
+\end{aligned}\\
+$$</div>
+<p>这里根据推导我们就能看出来，  <span class="math">\( \alpha\frac{1}{N}\sum_{i=1}^{N}{(H_\theta(x^{(i)})-y^{(i)})x_j}\)</span>  这部分就是普通的 <a href="https://reed-qu.github.io/pi-liang-ti-du-xia-jiang.html"> 批量梯度下降</a> ，同时  <span class="math">\( \alpha\)</span>  和 <span class="math">\(\lambda\)</span>  都是一个 <strong>小于1</strong> 的比较小的数字，所以这里做的就是在每次迭代的时候，把 <span class="math">\( \theta_j\)</span>  再缩小一点， <em>“缩小多少”</em> 这个因子则是由  <span class="math">\( \lambda\)</span> 控制的，通过调整  <span class="math">\( \lambda\)</span>  的大小来调整模型是更关注 <strong>损失</strong> 还是更关注 <strong>模型的复杂度</strong> 。</p>
+<p>从 <a href="https://reed-qu.github.io/pu-tong-zui-xiao-er-cheng-fa.html"> 最小二乘法 </a> 的角度来思考，也可以直接计算 <span class="math">\( \theta\)</span>  的解析解 <span class="math">\( J(\theta) = ||X\theta - Y||_2^2 +\lambda||\theta||_2^2\)</span>，这里省略展开过程，可以得到</p>
+<div class="math">$$
+\begin{aligned}
+    J(\theta) &amp;= ||X\theta -Y||_2^2 +\lambda||\theta||_2^2\\
+    &amp;=\theta^TX^TX\theta - 2\theta^TX^TY + Y^TY \lambda \theta^T\theta \end{aligned}\\
+$$</div>
+<div class="math">$$
+\begin{aligned}
+    \frac{\partial J(\theta)}{\partial \theta} &amp;= \frac {\partial (\theta^TX^TX\theta - 2\theta^TX^TY + Y^TY + \lambda \theta^T\theta)}{\partial \theta}\\
+    &amp;=2X^TX\theta - 2X^TY +\lambda \theta\\
+    &amp;=2(X^TX+\frac{\lambda I}{2})\theta-2X^TY
+\end{aligned}
+$$</div>
+<div class="math">$$
+\frac{\partial J(\theta)}{\partial \theta} =
+2(X^TX+\frac{\lambda I}{2})\theta -2X^TY = 0
+$$</div>
+<div class="math">$$
+\theta = (X^TX+\frac{\lambda}{2}I)^{-1}X^TY
+$$</div>
+<p>这样也是可以直接计算出  <span class="math">\( \theta\)</span>  的，只是加上了1个 <span class="math">\(\frac{\lambda}{2}I\)</span>  ，这里有2点需要注意</p>
+<ol>
+<li>有很多普通最小二乘法矩阵不可逆的情况，这里加上了  <span class="math">\( \frac{\lambda}{2}I\)</span>  就变得可逆了，让最小二乘法更通用 </li>
+<li><span class="math">\( X^TX\)</span>  由于  <span class="math">\( x_0\)</span>  这项所以是  <span class="math">\( (n+1)\times(n+1)\)</span>  的矩阵，这里的  <span class="math">\( I\)</span>  也应该是  <span class="math">\( (n+1)\times(n+1)\)</span>  的，但是有一点不同就是这里的  <span class="math">\( I\)</span>  实际上是</li>
+</ol>
+<div class="math">$$
+\left[ \begin{array}{ccccc}
+    0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0\\
+    0 &amp; 1 &amp; 0 &amp; \cdots &amp; 0\\
+    0 &amp; 0 &amp; 1 &amp; \cdots &amp; 0\\
+    \vdots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \vdots\\
+    0 &amp; 0 &amp; 0 &amp; \cdots &amp;1
+\end{array} \right]\\
+$$</div>
+<p>因为这里并不需要对  <span class="math">\( \theta_0\)</span>  这个 <strong>偏置项</strong> 做缩放,这种线性回归方法我们也叫做 <strong>岭回归(Ridge Regression)</strong> ，即加了 <strong>L2-norm</strong> 正则化的线性回归。</p>
+<h2><strong>L1正则化</strong></h2>
+<p>这里和<strong>L2</strong>有点不同： <strong>L2</strong>虽然很优秀，计算出来的系数更稳定，但是多重共线性仍然存在，有没有一种类似这种添加惩罚项的办法来解决掉多重共线性的问题？其实这里很自然的就想到，把<strong>L2</strong> 正则化中的惩罚项替换成 <strong>L0-norm</strong> (系数中非0的个数)，这样模型就更简单了，无关的维度系数为0，即是去除掉该维度，但是<strong>L0-norm</strong> 又有很多问题（函数非连续，很难求解），所以用 <strong>L1-norm</strong> (系数的绝对值)来近似地取代 <strong>L0-norm</strong> 。</p>
+<p><strong>L1</strong> 正则化的推导公式跟 <strong>L2</strong> 正则化的推导类似，区别主要在添加的惩罚项部分，所以为了理解这里可以这么写这个损失函数</p>
+<div class="math">$$
+J(\theta) = \frac{1}{2N}\sum_{i=1}^{N}{(H_\theta(x^{(i)})-y^{(i)})^2} +
+\lambda||\theta||_1 = J_0(\theta) + J_1(\theta)\\
+$$</div>
+<p><span class="math">\( J_0(\theta)\)</span>  为一般线性回归部分，  <span class="math">\(J_1(\theta)\)</span>  为<strong>L1-norm</strong> 部分 <span class="math">\(\frac{\partial J(\theta)}{\partial \theta} = \lambda\times sgn(\theta)+ \frac{\partial J_0(\theta)}{\partial \theta}\)</span>  ，梯度下降更新 <span class="math">\(\theta\)</span>  的时候即是 <span class="math">\(\theta_j^{'} = \theta_j - \alpha \lambda sgn(\theta_j) - \alpha\frac{\partial J_0(\theta)}{\partial \theta}\)</span></p>
+<blockquote>
+<p>其中  <span class="math">\(\alpha \lambda sgn(\theta_j)\)</span>  项，当  <span class="math">\(\theta_j &gt; 0\)</span>  时，更新后  <span class="math">\( \theta_j\)</span>  变小，当  <span class="math">\(\theta_j &lt; 0\)</span>  时，更新后  <span class="math">\( \theta_j\)</span>  变大，所以这里的效果就是让 <span class="math">\( \theta_j\)</span>  往0上靠拢，让  <span class="math">\( \theta\)</span>  中尽可能多的为0，也就是常说的让 <span class="math">\( \theta\)</span> <strong>更稀疏</strong> ，所以说 <strong>L1</strong> 正则化可以 <strong>优化过拟合和做特征选择</strong> ，因为为0的 <span class="math">\( \theta_j\)</span>  就是不重要的特征，但是这里有一个问题，当  <span class="math">\( \theta_j=0\)</span> 的时候怎么办？因为此时  <span class="math">\(\theta\)</span>  是不可导的，所以粗暴一点就是按照普通最小二乘法的方式去迭代，也就是去掉 <span class="math">\( \alpha \lambda sgn(\theta_j)\)</span>  项或者令其为0，这样就解决了，更通用一点的是利用 <a href="[https://zh.wikipedia.org/zh-hans/%E5%9D%90%E6%A0%87%E4%B8%8B%E9%99%8D%E6%B3%95](https://zh.wikipedia.org/zh-hans/坐标下降法)">坐标下降法</a> 来求解，本质就是控制其他维度，单独调整某一个维度的  <span class="math">\( \theta_j\)</span>  ，确定之后再继续调整其他的 <span class="math">\( \theta\)</span>  ，也可以解决。</p>
+</blockquote>
+<p>这种线性回归方法我们也叫做 <strong>LASSO回归(least absolute shrinkage and selection operator)</strong>，即加了 <strong>L1-norm</strong> 的惩罚项的线性回归。</p>
+<h2><strong>总结 LASSO 和 Ridge 回归</strong></h2>
+<p><strong>相同点：</strong> 都是在线性回归的基础上，添加了一个惩罚项，让模型更稳定更简单，泛化能力更强，避免过拟合。</p>
+<p><strong>不同点：LASSO</strong> 是利用 <strong>L1-norm</strong> 来逼近 <strong>L0-norm</strong>的，因为系数可以减小到0，所以可以做特征选择，但是并不是每个点都是可导的，所以计算起来可能会并没有 <strong>L2-norm</strong> 方便； <strong>Ridge</strong> 是利用 <strong>L2-norm</strong> 来使系数不那么大，同时方便计算，但是不会使系数减小到0，所以不能做特征选择，可解释性方面也没有 <strong>LASSO</strong> 高。</p>
+<hr/>
+<p>😛</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+</div><!-- /.entry-content -->
+</article>
+</section>
+<section class="body" id="extras">
+<div class="blogroll">
+<h2>about me</h2>
+<ul>
+<li><a href="https://github.com/reedwave">github</a></li>
+<li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
+<li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
+</ul>
+</div><!-- /.blogroll -->
+<div class="social">
+<h2>social</h2>
+<ul>
+<li><a href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" type="application/atom+xml">atom feed</a></li>
+</ul>
+</div><!-- /.social -->
+</section><!-- /#extras -->
+<footer class="body" id="contentinfo">
+<address class="vcard body" id="about">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+<p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+</footer><!-- /#contentinfo -->
+</body>
+</html>

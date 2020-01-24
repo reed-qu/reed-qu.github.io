@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>普通最小二乘法</title>
+<link href="https://reed-qu.github.io/theme/css/main.css" rel="stylesheet"/>
+<link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" type="application/atom+xml"/>
+</head>
+<body class="home" id="index">
+<header class="body" id="banner">
+<h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
+<nav><ul>
+<li class="active"><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
+</ul></nav>
+</header><!-- /#banner -->
+<section class="body" id="content">
+<article>
+<header>
+<h1 class="entry-title">
+<a href="https://reed-qu.github.io/pu-tong-zui-xiao-er-cheng-fa.html" rel="bookmark" title="Permalink to 普通最小二乘法">普通最小二乘法</a></h1>
+</header>
+<div class="entry-content">
+<footer class="post-info">
+<abbr class="published" title="2020-01-21T15:20:30+08:00">
+                Published: 2020-01-21
+        </abbr>
+<address class="vcard author">
+                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
+</address>
+<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
+</footer><!-- /.post-info --> <blockquote>
+<p>在 <a href="https://reed-qu.github.io/pi-liang-ti-du-xia-jiang.html"> 批量梯度下降 </a>中讨论了，如何利用梯度下降的方式，如何一步一步寻找到损失函数的最小值，得到最佳拟合的  <span class="math">\(\theta\)</span>，这里我们继续讨论线性拟合问题，这次尝试用<a href="https://link.zhihu.com/?target=https%3A//zh.wikipedia.org/zh-
+hans/%25E6%259C%2580%25E5%25B0%258F%25E4%25BA%258C%25E4%25B9%2598%25E6%25B3%2595"> 最小二乘法 </a>直接求解  <span class="math">\(\theta\)</span>，就是说我们不用从山顶寻找梯度一步一步的往最低点走，某种情况下可以直接计算出  <span class="math">\(\theta\)</span></p>
+</blockquote>
+<h3><strong>普通最小二乘法 <em>(Ordinary least squares)</em></strong></h3>
+<p><strong>最小二乘法</strong> （又称 <strong>最小平方法</strong>）是一种数学优化技术。它通过最小化误差的平方和寻找数据的最佳函数匹配，利用最小二乘法可以简便地求得未知的数据，并使得这些求得的数据与实际数据之间误差的平方和为最小，下面一步一步推导。</p>
+<p><strong>Step 1</strong> . 最初我们是有一组训练数据 <span class="math">\(D = {(x^{(1)}, y^{(1)}), (x^{(2)}, y^{(2)})...(x^{(N)},y^{(N)})}\)</span>  ，其中  <span class="math">\(x^{(i)}\in R^n\)</span> 我们想要拟合的曲线为  <span class="math">\(H(\theta) = \theta^TX = \theta_0X_0 + \theta_1X_1 + \cdots +\theta_nX_n\)</span>  ，这里  <span class="math">\(X_0 = 1\)</span></p>
+<p><strong>Step 2</strong> . 现在我们用矩阵的形式来表示  <span class="math">\(H(\theta)\)</span>  ，我们有 <span class="math">\(N\)</span> 个样本数据，每个数据维度是 <span class="math">\(n\)</span> 维</p>
+<div class="math">$$
+\left[
+    \begin{array}{c}
+        \theta_0X_0^{(1)} + \theta_1X_1^{(1)} + \cdots + \theta_nX_n^{(1)} = y^{(1)}\\
+        \theta_0X_0^{(2)} + \theta_1X_1^{(2)} + \cdots + \theta_nX_n^{(2)} = y^{(2)}\\
+        \vdots \\
+        \theta_0X_0^{(N)} + \theta_1X_1^{(N)}+ \cdots + \theta_nX_n^{(N)} = y^{(N)}
+    \end{array}
+\right]\\
+$$</div>
+<p><strong>Step 3</strong> . 这里把上面的公式组合拆分成3部分  <span class="math">\(X\)</span>  数据集，  <span class="math">\(\theta\)</span> 参数，  <span class="math">\(Y\)</span>  目标值</p>
+<div class="math">$$
+X = 
+\left[ 
+    \begin{array}{ccc}
+        1 &amp; x_1^{(1)} &amp; \cdots &amp; x_n^{(1)}\\
+        1 &amp; x_1^{(2)} &amp; \cdots &amp; x_n^{(2)}\\
+        \vdots &amp; \vdots &amp; \vdots &amp; \vdots\\
+        1 &amp; x_1^{(N)} &amp; \cdots &amp; x_n^{(N)}
+    \end{array}
+\right]\\
+$$</div>
+<div class="math">$$
+\theta = 
+\left[
+    \begin{array}{c}
+        \theta_1\\
+        \theta_2\\
+        \vdots\\
+        \theta_n
+    \end{array}
+\right]\\
+$$</div>
+<div class="math">$$
+Y = 
+\left[ 
+    \begin{array}{c}
+    y_1\\
+    y_2\\
+    \vdots\\
+    y_n
+    \end{array}
+\right]\\
+$$</div>
+<p>这时等式就可以写成  <span class="math">\(X\theta = Y\)</span></p>
+<p><strong>Step 4</strong> . 我们想要通过这N个等式来求解  <span class="math">\(\theta\)</span>  ，当然这里不一定会有 <span class="math">\(\theta\)</span>  会使所有等式都成立，这时候就还是需要一个损失函数来判断取  <span class="math">\(\theta\)</span> 的时候，误差是否为最小，这里就和梯度下降是一个思路，用误差平方和来代表损失，但是这里是用矩阵的形式来表示，矩阵的 <strong><em>L-2</em></strong> 范数即表示误差平方和</p>
+<div class="math">$$
+CostFunction = J(\theta) = ||X\theta - Y||_2^2\\
+$$</div>
+<p><strong>Step 5</strong> . 这时候就不需要用梯度下降的方法去一步一步计算，还是可以根据人物下山的例子想象一下，梯度下降是人物以 <span class="math">\(\alpha\)</span>  为步长，走一步计算一下梯度再走下一步，而这里我们更像是人物开了天眼，一次性从所有的数据中找到最优解  <span class="math">\(\theta\)</span></p>
+<p><strong>Step 6</strong> . 首先来展开  <span class="math">\(J(\theta)\)</span></p>
+<div class="math">$$
+\begin{equation}
+    \begin{aligned}
+        J(\theta) = ||X\theta - Y||_2^2 
+        &amp;= (X\theta - Y)^T(X\theta - Y)\\
+        &amp; = (\theta^TX^T - Y^T)(X\theta -Y)\\
+        &amp;=\theta^TX^TX\theta - \theta^TX^TY - Y^TX\theta + Y^TY\\
+        &amp;=\theta^TX^TX\theta - 2\theta^TX^TY + Y^TY
+    \end{aligned}
+\end{equation}
+$$</div>
+<p>上式 <span class="math">\(\theta^TX^TY\)</span>  是一个标量，因为 <span class="math">\(\theta^T \in 1\times (n+1)\)</span> , <span class="math">\(X^T \in (n+1)\times N\)</span> , <span class="math">\(Y
+\in N\times1\)</span>，所以根据矩阵乘法的特点，这里乘出来之后会是1个标量，<span class="math">\(Y^TX\theta\)</span> 同理，所以二者可以合并成 <span class="math">\(2\theta^TX^TY\)</span></p>
+<p><strong>Step 7</strong> . 在梯度下降中，我们一步一步的计算梯度，一直走到最低点也就是导数为0的点，这里可以直接对损失函数求导，令导数=0即可</p>
+<div class="math">$$
+\begin{equation}
+    \begin{aligned}
+        \frac{\partial J(\theta)}{\partial \theta}
+        &amp;= \frac {\partial (\theta^TX^TX\theta - 2\theta^TX^TY + Y^TY)}{\partial \theta}\\
+        &amp;=\frac{\partial(\theta^TX^TX\theta)}{\partial \theta} - 2X^TY + 0
+    \end{aligned}
+\end{equation}\\
+$$</div>
+<p>此时注意到  <span class="math">\(X^TX\)</span>  是一个  <span class="math">\((n+1)\)</span>  维的方阵，这时候根据公式</p>
+<div class="math">$$
+\frac{\partial (X^TBX)}{\partial X} = (B + B^T) X\\
+$$</div>
+<p>如上矩阵相关的公式，都可以在这个<a href="https://link.zhihu.com/?target=http%3A//117.128.6.34/cache/www2.imm.dtu.dk/pubdb/views/edoc_download.php/3274/pdf/imm3274.pdf%3Fich_args2%3D466-11132213008203_0b26da0a993385059ef3d90549e99ec6_10001002_9c896128dec5f1d0943b518939a83798_efb0b935aca0c3bc1c9af15cf2a1260c"> The Matrix Cookbook
+</a>中查找到，所以可以推导出  <span class="math">\(\theta\)</span>  用 <span class="math">\(X\)</span>  数据集和  <span class="math">\(Y\)</span>  目标集来表示</p>
+<div class="math">$$
+\begin{aligned}
+    \frac{\partial(\theta^TX^TX\theta)}{\partial \theta} &amp;= (X^TX +X^TX) \theta = 2X^TX\theta\\
+    \frac{\partial J(\theta)}{\partial \theta} &amp;= 2X^TX\theta - 2X^TY = 0\\
+    \theta &amp;= (X^TX)^{-1}X^TY
+\end{aligned}\\
+$$</div>
+<h3><strong>总结</strong></h3>
+<p>至此已经计算出线性回归中 <span class="math">\(\theta\)</span> 的值，也就是说，我们不必要用梯度下降的方式去迭代收敛到最小值，可以直接根据公式得到 <span class="math">\(\theta\)</span> 清晰的解析解，但是最小二乘法并不能解决所有情况，有以下几点：</p>
+<ul>
+<li>
+<p>通过公式  <span class="math">\(\theta = (X^TX)^{-1}X^TY\)</span>  发现对在数据集基础上做 <strong>逆运算，</strong>计算矩阵的逆需要大量的计算，虽然现在计算机能力都很强，但是那也架不住，动辄上百万的数据量和上万的维度，所以首先 <strong>数据量过大</strong>不适合用最小二乘法，反观梯度下降就没有这个问题( 一步一步迭代嘛 )</p>
+</li>
+<li>
+<p>还是逆运算，并不是所有的矩阵都是可逆的，如果数据集中有 <strong>多重共线性</strong> 的问题( <strong>矩阵行列式=0</strong> )，这里求逆就行不通了，即便是可逆，多重共线性也会让结果很不准确，但是梯度下降还是可以一步一步收敛。当然了也可以通过比如降维，求伪逆，损失函数加上个惩罚项( 后面会讨论<strong><em>LASSO</em></strong> 和 <strong><em>Ridge</em></strong> )等办法对数据集进行处理，转化成可逆矩阵。</p>
+</li>
+</ul>
+<hr/>
+<p>😛</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+</div><!-- /.entry-content -->
+</article>
+</section>
+<section class="body" id="extras">
+<div class="blogroll">
+<h2>about me</h2>
+<ul>
+<li><a href="https://github.com/reedwave">github</a></li>
+<li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
+<li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
+</ul>
+</div><!-- /.blogroll -->
+<div class="social">
+<h2>social</h2>
+<ul>
+<li><a href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" type="application/atom+xml">atom feed</a></li>
+</ul>
+</div><!-- /.social -->
+</section><!-- /#extras -->
+<footer class="body" id="contentinfo">
+<address class="vcard body" id="about">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+<p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+</footer><!-- /#contentinfo -->
+</body>
+</html>

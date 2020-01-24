@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>[reed@blog ~]# _ - reed</title>
+<link href="https://reed-qu.github.io/theme/css/main.css" rel="stylesheet"/>
+<link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" type="application/atom+xml"/>
+</head>
+<body class="home" id="index">
+<header class="body" id="banner">
+<h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
+<nav><ul>
+<li><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
+</ul></nav>
+</header><!-- /#banner -->
+<section class="body" id="content">
+<ol class="hfeed" id="posts-list" start="2">
+<li><article class="hentry">
+<header>
+<h1><a href="https://reed-qu.github.io/svmer-la-ge-lang-ri-dui-ou-shi.html" rel="bookmark" title="Permalink to SVM(二)拉格朗日对偶式">SVM(二)拉格朗日对偶式</a></h1>
+</header>
+<div class="entry-content">
+<footer class="post-info">
+<abbr class="published" title="2020-01-24T21:11:26+08:00">
+                Published: 2020-01-24
+        </abbr>
+<address class="vcard author">
+                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
+</address>
+<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
+</footer><!-- /.post-info --> <blockquote>
+<p>在 <a href="https://reed-qu.github.io/svmyi-cong-gan-zhi-ji-dao-svmsun-shi-han-shu.html"> SVM(一) </a>中从感知机说到硬间隔线性可分SVM的损失函数，此时损失函数是有约束条件的，无法直接计算导数为0时的参数，需要转换一下<strong>将目标函数和约束条件放到一个拉格朗日函数中</strong> ，这也就是为什么要构造拉格朗日函数，同时引出 <strong>拉格朗日对偶式</strong>，利用对偶式来求解，并且有利于引出核函数的思想，这里简单讨论一下SVM对偶式，并给出一个具体例子来思考原始问题和对偶问题的异同点 …</p></blockquote>
+<a class="readmore" href="https://reed-qu.github.io/svmer-la-ge-lang-ri-dui-ou-shi.html">read more</a>
+</div><!-- /.entry-content -->
+</article></li>
+<li><article class="hentry">
+<header>
+<h1><a href="https://reed-qu.github.io/svmyi-cong-gan-zhi-ji-dao-svmsun-shi-han-shu.html" rel="bookmark" title="Permalink to SVM(一)从感知机到SVM损失函数">SVM(一)从感知机到SVM损失函数</a></h1>
+</header>
+<div class="entry-content">
+<footer class="post-info">
+<abbr class="published" title="2020-01-24T16:12:11+08:00">
+                Published: 2020-01-24
+        </abbr>
+<address class="vcard author">
+                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
+</address>
+<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
+</footer><!-- /.post-info --> <blockquote>
+<p>在做二分类任务的时候，往往可采用的方法有很多，比如 <a href="https://reed-qu.github.io/dui-shu-ji-lu-hui-gui-luo-ji-hui-gui.html"> 对数几率回归 </a> 或者树模型(往往是 <a href="https://reed-qu.github.io/ji-cheng-xue-xi-sui-ji-sen-lin-adaboost.html"> 随机森林 </a> ， <a href="https://reed-qu.github.io/cong-gbdtdao-xgboost.html"> GBDT</a> 这一类集成模型)，当然还有很多种办法， <strong><a href="https://zh.wikipedia.org/wiki/%E6%84%9F%E7%9F%A5%E5%99%A8"> 感知机</a></strong> 就是其中的比较直观和简单的一种，感知机的原理很简单，考虑在特种空间中的 <strong>线性可分 …</strong></p></blockquote>
+<a class="readmore" href="https://reed-qu.github.io/svmyi-cong-gan-zhi-ji-dao-svmsun-shi-han-shu.html">read more</a>
+</div><!-- /.entry-content -->
+</article></li>
+<li><article class="hentry">
+<header>
+<h1><a href="https://reed-qu.github.io/cong-gbdtdao-xgboost.html" rel="bookmark" title="Permalink to 从GBDT到XGBoost">从GBDT到XGBoost</a></h1>
+</header>
+<div class="entry-content">
+<footer class="post-info">
+<abbr class="published" title="2020-01-24T15:42:53+08:00">
+                Published: 2020-01-24
+        </abbr>
+<address class="vcard author">
+                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
+</address>
+<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
+</footer><!-- /.post-info --> <blockquote>
+<p>这次继续聊Boosting模型，上一篇聊了AdaBoost，AdaBoost的核心思想是通过提升错分的数据权重，来更关注错分的数据，同时根据每次迭代的正确率来给当前的弱模型一个权重，这个弱模型准确率越高，则这个弱模型的权重就越大，这是合理的，但是其实这样还是不够直接，更直接的做法是比如说第一次训练了一个弱模型，这个弱模型肯定不会是100%完美的，肯定会存在一定的误差(残差)，此时更直接的想法就是我再 …</p></blockquote>
+<a class="readmore" href="https://reed-qu.github.io/cong-gbdtdao-xgboost.html">read more</a>
+</div><!-- /.entry-content -->
+</article></li>
+</ol><!-- /#posts-list -->
+<p class="paginator">
+<a href="https://reed-qu.github.io/author/reed.html">«</a>
+    Page 2 / 5
+        <a href="https://reed-qu.github.io/author/reed3.html">»</a>
+</p>
+</section><!-- /#content -->
+<section class="body" id="extras">
+<div class="blogroll">
+<h2>about me</h2>
+<ul>
+<li><a href="https://github.com/reedwave">github</a></li>
+<li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
+<li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
+</ul>
+</div><!-- /.blogroll -->
+<div class="social">
+<h2>social</h2>
+<ul>
+<li><a href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" type="application/atom+xml">atom feed</a></li>
+</ul>
+</div><!-- /.social -->
+</section><!-- /#extras -->
+<footer class="body" id="contentinfo">
+<address class="vcard body" id="about">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+<p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+</footer><!-- /#contentinfo -->
+</body>
+</html>

@@ -22,33 +22,21 @@
 </header>
 <div class="entry-content">
 <footer class="post-info">
-<abbr class="published" title="2020-01-01T20:02:00+08:00">
-                Published: 2020-01-01
+<abbr class="published" title="2020-01-24T22:15:11+08:00">
+                Published: 2020-01-24
         </abbr>
 <address class="vcard author">
                 By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
 </address>
 <p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
 </footer><!-- /.post-info --> <blockquote>
-<p>在 <a href="https://zhuanlan.zhihu.com/p/76040792"> SVM(一) </a> 和 <a href="https://zhuanlan.zhihu.com/p/82732640"> SVM(二)
-</a> 中，从 <strong>感知机</strong> 到 <strong>SVM损失函数</strong> 再到
-<strong>拉格朗日对偶式，</strong> 个人认为还是较为清楚的说了 <strong>硬间隔线性可分SVM</strong>
-，但是现实世界中往往并不是完美的，在实际环境中接触到的数据即便是线性可分也往往是找不到硬间隔的，还有线性不可分的情况，那么此时应该怎么办，SVM如何解决这种问题，本次SVM的最后一部分就来说一说这些问题</p>
+<p>在 <a href="https://reed-qu.github.io/svmyi-cong-gan-zhi-ji-dao-svmsun-shi-han-shu.html"> SVM(一) </a> 和 <a href="https://reed-qu.github.io/svmer-la-ge-lang-ri-dui-ou-shi.html"> SVM(二)</a> 中，从 <strong>感知机</strong> 到 <strong>SVM损失函数</strong> 再到<strong>拉格朗日对偶式，</strong> 个人认为还是较为清楚的说了 <strong>硬间隔线性可分SVM</strong> ，但是现实世界中往往并不是完美的，在实际环境中接触到的数据即便是线性可分也往往是找不到硬间隔的，还有线性不可分的情况，那么此时应该怎么办，SVM如何解决这种问题，本次SVM的最后一部分就来说一说这些问题</p>
 </blockquote>
-<h2>软间隔线性可分SVM</h2>
-<p>首先依旧是给定数据集  <span class="math">\(D={(x^{(1)}, y^{(1)}), (x^{(2)},
-y^{(2)}),...,(x^{(N)}, y^{(N)})}\)</span>  ，其中  <span class="math">\(x^{(i)}\in R^n\)</span>
-<span class="math">\(y^{(i)}\in {-1, +1}\)</span> <span class="math">\(i = 1,2...,N\)</span>  ，前面的问题中
-<strong>前提是数据一定得是线性可分</strong> 的，我们这里也假定数据是线性可分的，但是硬间隔不存在，也就是说 <strong>一些噪声或者叫异常点在间隔中干扰了硬间隔</strong>
-，导致找不到一个传统意义上的硬间隔。</p>
-<p>此时既然仍然是线性可分的，那就还是可以在数据中画出一个超平面尽最大限度的分好正负例，且能找到最大间隔，只不过间隔是有“误差”的，换句话就是说，此时允许一定的“误差”落在间隔中，这种间隔就叫做
-<strong>软间隔</strong></p>
+<h2><strong>软间隔线性可分SVM</strong></h2>
+<p>首先依旧是给定数据集  <span class="math">\(D={(x^{(1)}, y^{(1)}), (x^{(2)},y^{(2)}),\cdots,(x^{(N)}, y^{(N)})}\)</span>  ，其中  <span class="math">\(x^{(i)}\in R^n\)</span>，<span class="math">\(y^{(i)}\in {-1, +1}\)</span>，<span class="math">\(i = 1,2...,N\)</span>  ，前面的问题中<strong>前提是数据一定得是线性可分</strong> 的，我们这里也假定数据是线性可分的，但是硬间隔不存在，也就是说 <strong>一些噪声或者叫异常点在间隔中干扰了硬间隔</strong>，导致找不到一个传统意义上的硬间隔。</p>
+<p>此时既然仍然是线性可分的，那就还是可以在数据中画出一个超平面尽最大限度的分好正负例，且能找到最大间隔，只不过间隔是有“误差”的，换句话就是说，此时允许一定的“误差”落在间隔中，这种间隔就叫做<strong>软间隔</strong></p>
 <p><img class="image-process-article-image" src="/images/derivees/article-image/svm3_soft_margin.jpg"/></p>
-<p>从图中可以清楚的看出来，相较于硬间隔，软间隔允许有 <strong>错分数据</strong> 在间隔内，此时在数学上达到这种效果的方法就是给每一个样本点一个 <strong>松弛变量</strong>
-<span class="math">\(\xi\)</span>  ，且和最大间隔  <span class="math">\(\frac{1}{2}||\theta||^2\)</span>  之间加一个
-<strong>惩罚参数来控制二者的“权重” <span class="math">\(C\)</span> </strong> ，比如  <span class="math">\(C=+\infty\)</span>
-时其实就相当于不允许有任何误差，也就容易过拟合，所以软、硬间隔线性可分SVM二者的损失函数是类似的，主要差别即在 <strong>松弛变量</strong>
-这部分，定义软间隔线性可分SVM损失函数为</p>
+<p>从图中可以清楚的看出来，相较于硬间隔，软间隔允许有 <strong>错分数据</strong> 在间隔内，此时在数学上达到这种效果的方法就是给每一个样本点一个 <strong>松弛变量</strong> <span class="math">\(\xi\)</span>  ，且和最大间隔  <span class="math">\(\frac{1}{2}||\theta||^2\)</span>  之间加一个 <strong>惩罚参数来控制二者的“权重”</strong> <span class="math">\(C\)</span> ，比如  <span class="math">\(C=+\infty\)</span> 时其实就相当于不允许有任何误差，也就容易过拟合，所以软、硬间隔线性可分SVM二者的损失函数是类似的，主要差别即在 <strong>松弛变量</strong> 这部分，定义软间隔线性可分SVM损失函数为</p>
 <div class="math">$$
 \begin{equation}
     \begin{aligned}
@@ -56,10 +44,9 @@ y^{(2)}),...,(x^{(N)}, y^{(N)})}\)</span>  ，其中  <span class="math">\(x^{(i
         s.t. \space&amp;y^{(i)}(\theta^Tx^{(i)}+b)+\xi^{(i)}\geq1，&amp;i=1,2,...,N\\
                    &amp;\xi^{(i)}\geq0，                           &amp;i=1,2,...,N
     \end{aligned}
-\end{equation}
+\end{equation}\\
 $$</div>
-<p>然后依然是构造拉格朗日函数，但是注意此时约束为 <strong>两个不等式</strong> ，所以需要  <span class="math">\(\alpha,\beta\)</span>
-两个拉格朗日乘子向量</p>
+<p>然后依然是构造拉格朗日函数，但是注意此时约束为 <strong>两个不等式</strong> ，所以需要  <span class="math">\(\alpha,\beta\)</span> 两个拉格朗日乘子向量</p>
 <div class="math">$$
 \begin{equation}
     \begin{aligned}
@@ -67,9 +54,9 @@ $$</div>
         &amp;\frac{1}{2}||\theta||^2+C\sum_{i=1}^{N}{\xi^{(i)}}\\
         &amp;+\sum_{i=1}^{N}{\alpha^{i}}(1-y^{(i)}(\theta^Tx^{(i)}+b)-\xi^{(i)})\\
         &amp;+\sum_{i=1}^{N}{\beta^{(i)}\xi^{(i)}}\\
-        &amp;=\mathop{max}_{\alpha,\beta}\mathop{min}_{\theta,b,\xi}L(\theta,b,\alpha,\beta,\xi)
+        =&amp;\mathop{max}_{\alpha,\beta}\mathop{min}_{\theta,b,\xi}L(\theta,b,\alpha,\beta,\xi)
     \end{aligned}
-\end{equation}
+\end{equation}\\
 $$</div>
 <p>然后根据对偶问题进行计算，分别对  <span class="math">\(\theta,b,\xi\)</span>  求导等于  <span class="math">\(0\)</span>  求极小</p>
 <div class="math">$$
@@ -79,20 +66,21 @@ $$</div>
         \frac{\partial L}{\partial b} &amp;=-\sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}}&amp;=0\\
         \frac{\partial L}{\partial \xi^{(i)}}&amp;=C-\alpha^{(i)}-\beta^{(i)}&amp;=0
     \end{aligned}
-\end{equation}
+\end{equation}\\
 $$</div>
 <p>整合公式即可得出， <strong>不要忘记拉格朗日乘子的约束</strong></p>
 <div class="math">$$
-\theta=\sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}x^{(i)}}\\
-\sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}}=0\\
-C-\alpha^{(i)}-\beta^{(i)}=0\\
-\alpha^{(i)}\geq0\\
-\beta^{(i)}\geq0
+\begin{aligned}
+    &amp;\theta=\sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}x^{(i)}}\\
+    &amp;\sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}}=0\\
+    &amp;C-\alpha^{(i)}-\beta^{(i)}=0\\
+    &amp;\alpha^{(i)}\geq0\\
+    &amp;\beta^{(i)}\geq0
+\end{aligned}\\
 $$</div>
-<p>然后将  <span class="math">\(\theta\)</span>  带入原始问题的拉格朗日函数中，此处与硬间隔一致，所以推导过程就不赘述了，可以参考 <a href="https://zhuanlan.zhihu.com/p/82732640">
-SVM(二)拉格朗日对偶式 </a> ，得到</p>
+<p>然后将  <span class="math">\(\theta\)</span>  带入原始问题的拉格朗日函数中，此处与硬间隔一致，所以推导过程就不赘述了，可以参考 <a href="https://reed-qu.github.io/svmer-la-ge-lang-ri-dui-ou-shi.html">SVM(二)拉格朗日对偶式 </a> ，得到</p>
 <div class="math">$$
-\mathop{min}_{\theta,b,\xi}L(\theta,b,\alpha,\beta,\xi)=\sum_{i=1}^{N}{\alpha^{(i)}}-\frac{1}{2}\sum_{i=1}^{N}\sum_{j=1}^{N}{\alpha^{(i)}\alpha^{(j)}y^{(i)}y^{(j)}x^{(i)}x^{(j)}}
+\mathop{min}_{\theta,b,\xi}L(\theta,b,\alpha,\beta,\xi)=\sum_{i=1}^{N}{\alpha^{(i)}}-\frac{1}{2}\sum_{i=1}^{N}\sum_{j=1}^{N}{\alpha^{(i)}\alpha^{(j)}y^{(i)}y^{(j)}x^{(i)}x^{(j)}}\\
 $$</div>
 <p>再对  <span class="math">\(\alpha\)</span>  求  <span class="math">\(L\)</span>的极大即是对偶问题了，这里先考虑相较于硬间隔SVM来说多出来的约束条件  <span class="math">\(C-\alpha^{(i)}-\beta^{(i)}=0\)</span>  ，和  <span class="math">\(\alpha^{(i)}\geq0，\beta^{(i)}\geq0\)</span>  ，可以约掉  <span class="math">\(\beta\)</span>  ，即是<span class="math">\(0\leq\alpha^{(i)}\leq C\)</span> ，所以对偶问题描述成</p>
 <div class="math">$$
@@ -103,30 +91,22 @@ $$</div>
         s.t. \space&amp; \sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}=0}\\
         &amp;0\leq\alpha^{(i)}\leq C，i=1,2,...,N
     \end{aligned}
-\end{equation}
+\end{equation}\\
 $$</div>
-<p><strong>从对偶问题的形式也可以看出来，相较于硬间隔SVM来说，只是对拉格朗日乘子的上限做了限制，上限就是 <span class="math">\(C\)</span> </strong></p>
-<h2>核方法</h2>
-<p>软间隔线性可分依然是线性可分，假如真实的数据是线性不可分的情况SVM能不能处理，怎么处理？比如说数据分布如下图(左)，这时候是数据线性不可分，但是在可视化图中是能够很清楚的知道这些数据应该怎么划分，这里超平面应该是一个圆，但是我们不能完全依赖数据可视化，超过3维肉眼就很难看出来了，
-<strong>这时候的一个思路是经过一个特殊的转化(下图 <span class="math">\(\phi(x)\)</span>
-)，把这些数据变成线性可分的(下图右)，那么就可以利用线性可分SVM来处理了 </strong>
-，核方法就是这么处理的。其实核方法不是只在SVM中出现，核方法是一个纯粹的数学方法，其解决的问题就是 <strong>数据映射到高维空间中计算量过于复杂</strong> 的问题</p>
+<p><strong>从对偶问题的形式也可以看出来，相较于硬间隔SVM来说，只是对拉格朗日乘子的上限做了限制，上限就是</strong> <span class="math">\(C\)</span></p>
+<h2><strong>核方法</strong></h2>
+<p>软间隔线性可分依然是线性可分，假如真实的数据是线性不可分的情况SVM能不能处理，怎么处理？比如说数据分布如下图(左)，这时候是数据线性不可分，但是在可视化图中是能够很清楚的知道这些数据应该怎么划分，这里超平面应该是一个圆，但是我们不能完全依赖数据可视化，超过3维肉眼就很难看出来了，<strong>这时候的一个思路是经过一个特殊的转化(下图</strong> <span class="math">\(\phi(x)\)</span> <strong>)，把这些数据变成线性可分的(下图右)，那么就可以利用线性可分SVM来处理了</strong>，核方法就是这么处理的。其实核方法不是只在SVM中出现，核方法是一个纯粹的数学方法，其解决的问题就是 <strong>数据映射到高维空间中计算量过于复杂</strong> 的问题</p>
 <p><img class="image-process-article-image" src="/images/derivees/article-image/svm3_kernel.png"/></p>
-<p>根据线性可分SVM中推导的公式来看，最终的目标函数只是与  <span class="math">\(x^{(i)},x^{(j)}\)</span>  的 <strong>内积</strong>
-有关，然后对于线性不可分的数据定义某种线性变化</p>
-<p><span class="math">\(x\rightarrow \phi(x)\\\\)</span></p>
-<p>把  <span class="math">\(x\)</span>  映射到高维空间中，目的是 <strong>为了让在低维空间中线性不可分的数据在映射后的高位空间中线性可分</strong>
-，映射后的内积就是  <span class="math">\(&lt;\phi(x^{(i)}),\phi(x^{(j)})&gt;\)</span>
-，有了这个映射就可以在映射后的高维空间中做SVM的事情，但是这个不叫核方法。到这里其实仔细想一下就会发现一个问题，这个映射是要做“ <strong>升维</strong>
-”的事儿，那么维度爆炸甚至是无穷维时怎么办，计算量会特别大，解决这个问题的方法才是核方法，具体的做法是在原始空间中找到一个函数
-<span class="math">\(\kappa\)</span>  ，使得</p>
+<p>根据线性可分SVM中推导的公式来看，最终的目标函数只是与  <span class="math">\(x^{(i)},x^{(j)}\)</span>  的 <strong>内积</strong> 有关，然后对于线性不可分的数据定义某种线性变化</p>
 <div class="math">$$
-\kappa(x^{(i)},x^{(j)})=&lt;\phi(x^{(i)}),\phi(x^{(j)})&gt;
+x\rightarrow \phi(x)\\
 $$</div>
-<p>
-这样一来根本就不用去计算  <span class="math">\(\phi(x)\)</span>  了甚至不需要知道  <span class="math">\(\phi\)</span>
-是怎么映射的就解决了维度爆炸带来的计算性能下降的问题，找到的这个函数  <span class="math">\(\kappa\)</span>
-就叫做核函数。常用的核函数主要为以下3类</p>
+<p>把 <span class="math">\(x\)</span> 映射到高维空间中，目的是 <strong>为了让在低维空间中线性不可分的数据在映射后的高位空间中线性可分</strong>，映射后的内积就是  <span class="math">\(&lt;\phi(x^{(i)}),\phi(x^{(j)})&gt;\)</span>
+，有了这个映射就可以在映射后的高维空间中做SVM的事情，但是这个不叫核方法。到这里其实仔细想一下就会发现一个问题，这个映射是要做“<strong>升维</strong>”的事儿，那么维度爆炸甚至是无穷维时怎么办，计算量会特别大，解决这个问题的方法才是核方法，具体的做法是在原始空间中找到一个函数 <span class="math">\(\kappa\)</span>  ，使得</p>
+<div class="math">$$
+\kappa(x^{(i)},x^{(j)})=&lt;\phi(x^{(i)}),\phi(x^{(j)})&gt;\\
+$$</div>
+<p>这样一来根本就不用去计算  <span class="math">\(\phi(x)\)</span>  了甚至不需要知道  <span class="math">\(\phi\)</span> 是怎么映射的就解决了维度爆炸带来的计算性能下降的问题，找到的这个函数  <span class="math">\(\kappa\)</span> 就叫做核函数。常用的核函数主要为以下3类</p>
 <ol>
 <li><strong>线性核，实际上就是没有做变换</strong> <span class="math">\(\kappa(x_1, x_2) = &lt;x_1, x_2&gt;\)</span> </li>
 <li><strong>高斯核，使用较为广泛，能够把原始特征映射到无穷维，也叫做径向基函数(Radial Basic Function，简称RBF)</strong> <span class="math">\(\kappa(x_1, x_2) = exp(-\frac{||x_1-x_2||_2^2}{2\sigma^2})\)</span> </li>
@@ -141,12 +121,13 @@ $$</div>
         &amp;=&lt;(x_1^2,\sqrt2x_1x_2,x_2^2),(y_1^2,\sqrt2y_1y_2,y_2^2) &gt;\\
         &amp;=&lt;\phi(x),\phi(y)&gt;
     \end{aligned}
-\end{equation}
+\end{equation}\\
 $$</div>
-<p>可以看出来，核函数  <span class="math">\(\kappa\)</span>
-可以避免在高维空间中做内积这种复杂的运算是因为核函数巧妙的避免了映射之后再做内积，而是直接给替代了，想对应的SVM的原始问题、对偶问题、超平面模型都会有所变化，即是将内积转变为其核函数</p>
-<p><span class="math">\(x^{(i)}\cdot x^{(j)}\rightarrow \kappa(x^{(i)}, x^{(j)})\)</span>
-<strong>软间隔对偶问题</strong></p>
+<p>可以看出来，核函数  <span class="math">\(\kappa\)</span> 可以避免在高维空间中做内积这种复杂的运算是因为核函数巧妙的避免了映射之后再做内积，而是直接给替代了，想对应的SVM的原始问题、对偶问题、超平面模型都会有所变化，即是将内积转变为其核函数</p>
+<div class="math">$$
+x^{(i)}\cdot x^{(j)}\rightarrow \kappa(x^{(i)}, x^{(j)})\\
+$$</div>
+<p><strong>软间隔对偶问题</strong></p>
 <div class="math">$$
 \begin{equation}
     \begin{aligned}
@@ -155,17 +136,14 @@ $$</div>
         s.t. \space&amp; \sum_{i=1}^{N}{\alpha^{(i)}y^{(i)}=0}\\
         &amp;0\leq\alpha^{(i)}\leq C，i=1,2,...,N
     \end{aligned}
-\end{equation}
+\end{equation}\\
 $$</div>
 <p><strong>超平面模型</strong></p>
 <div class="math">$$
-f(x)=sign(\sum_{i=1}^{N}{\lambda^{*(i)}y^{(i)}\kappa(x\cdot x^{(i)})+b^*})
+f(x)=sign(\sum_{i=1}^{N}{\lambda^{*(i)}y^{(i)}\kappa(x\cdot x^{(i)})+b^*})\\
 $$</div>
-<h2>总结</h2>
-<p>经过 <strong><a href="https://zhuanlan.zhihu.com/p/76040792"> SVM(一)从感知机到SVM损失函数 </a> </strong> 和 <strong><a href="https://zhuanlan.zhihu.com/p/82732640">
-SVM(二)拉格朗日对偶式 </a> </strong>
-和本文，对SVM做了简单的介绍，其实还有一些内容没有整理，比如求解对偶问题的 <strong>SMO算法(类似坐标轴下降的一种算法)</strong> ，还有 <strong>支持向量回归</strong>
-等等，这部分留给后面处理。当然SVM并不可能是万能的，也是有一定使用场景的</p>
+<h2><strong>总结</strong></h2>
+<p>经过 <strong><a href="https://reed-qu.github.io/svmyi-cong-gan-zhi-ji-dao-svmsun-shi-han-shu.html"> SVM(一)从感知机到SVM损失函数 </a> </strong> 和 <strong><a href="https://reed-qu.github.io/svmer-la-ge-lang-ri-dui-ou-shi.html">SVM(二)拉格朗日对偶式 </a> </strong>和本文，对SVM做了简单的介绍，其实还有一些内容没有整理，比如求解对偶问题的 <strong>SMO算法(类似坐标轴下降的一种算法)</strong> ，还有 <strong>支持向量回归</strong>等等，这部分留给后面处理。当然SVM并不可能是万能的，也是有一定使用场景的</p>
 <p><strong>优点：</strong></p>
 <ol>
 <li><em>较适合解决高维特征的分类回归问题，因为SVM主要求解的是对偶问题，经过对偶问题之后高维度就转化成了样本量相关的问题</em></li>
@@ -177,7 +155,7 @@ SVM(二)拉格朗日对偶式 </a> </strong>
 <li><em>核函数的选择更像是玄学，并没有完备的理论依据来证明什么核函数适用于什么情况，所以往往需要尝试，利用交叉验证来选取更合适的核函数</em></li>
 <li><em>较依赖好的特征工程，特别是缺失值</em></li>
 </ol>
-<p><strong>最后感谢李航老师的《统计学习方法 第二版》 [1]  ，对我个人理解SVM有很大帮助。 </strong></p>
+<p><strong>最后感谢李航老师的<a href="https://book.douban.com/subject/33437381/">《统计学习方法 第二版》</a> ，对我个人理解SVM有很大帮助。</strong></p>
 <hr/>
 <p>😛</p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {

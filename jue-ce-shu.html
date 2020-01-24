@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>决策树</title>
+<link href="https://reed-qu.github.io/theme/css/main.css" rel="stylesheet"/>
+<link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" type="application/atom+xml"/>
+</head>
+<body class="home" id="index">
+<header class="body" id="banner">
+<h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
+<nav><ul>
+<li class="active"><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
+</ul></nav>
+</header><!-- /#banner -->
+<section class="body" id="content">
+<article>
+<header>
+<h1 class="entry-title">
+<a href="https://reed-qu.github.io/jue-ce-shu.html" rel="bookmark" title="Permalink to 决策树">决策树</a></h1>
+</header>
+<div class="entry-content">
+<footer class="post-info">
+<abbr class="published" title="2020-01-24T15:15:30+08:00">
+                Published: 2020-01-24
+        </abbr>
+<address class="vcard author">
+                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
+</address>
+<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
+</footer><!-- /.post-info --> <blockquote>
+<p>今天来研究一下分类问题中的决策树，决策树从名字就可以看出来，是一种<strong>树形结构</strong>的决策模型。如标题图中所看见的，我们想通过是“否拥有房产”、“是否已婚”、“年收入”这3个维度，来判断该客户是否具有偿还某种贷款的能力，就可以建造一个这样的1个树形结构模型，但是这其中有两个问题：1，为什么判断顺序是图中所示的顺序；2，为什么拥有房产为“是”的时候就停止向下判断，这里简单介绍几种决策树相关的算法。</p>
+</blockquote>
+<h2><strong>信息论 Information Theory</strong></h2>
+<p>信息论目的是寻找一种可以量化的方法，来量化信息量的多少，针对这个问题我们就可以对事件  <span class="math">\( X\)</span>  做出如下基本的规律总结</p>
+<div class="math">$$
+\left\{
+    \begin{aligned}
+        Info(X) &amp; \geq 0 &amp; 1 \\
+        Info(X) &amp; \Leftrightarrow \frac{1}{P(X)} &amp; 2\\
+        Info(X_1, X_2) &amp; = Info(X_1) + Info(X_2) &amp; 3
+    \end{aligned}
+\right.
+$$</div>
+<ol>
+<li>事件的发生，最多是没有产生任何信息量，不可能还少了信息量，所以信息量是 <strong>大于等于0</strong> 的 </li>
+<li>考虑这样2个事件，A: 领导说今天晚上加班；B: 领导说要给你升职加薪。很明显B事件的信息量要大于A事件，且  <span class="math">\( P(A) &gt; P(B)\)</span>  ，所以这里认为 <strong>信息量与该事件的发生概率成反比</strong></li>
+<li>多个 <strong>独立</strong> 事件的信息量为每个事件的信息量之和 </li>
+</ol>
+<p>所以事件  <span class="math">\( X\)</span>  与该事件的信息量  <span class="math">\( Info(X)\)</span> 可以得出这样的等式，来满足上面的3个要求</p>
+<div class="math">$$
+Info(X) = log_2\frac{1}{P(X)} = -log_2(P(X))\\
+$$</div>
+<h2><strong>信息熵 Information Entropy</strong></h2>
+<p>信息熵也叫香农熵，是香农于1948年10月发表的论文《通信的数学理论》中提出的，在该文中，香农给出了信息熵的定义，即是信息量的数学期望</p>
+<div class="math">$$
+Entropy(X) = \sum_{X\epsilon \chi}^{}{P(X)Info(X)} = -\sum_{X\epsilon \chi}^{}{P(X)log_2(P(X))}\\
+$$</div>
+<p>其中  <span class="math">\( \chi\)</span>  为有限个事件  <span class="math">\( X\)</span>  的集合，  <span class="math">\( X\)</span> 是定义在  <span class="math">\( \chi\)</span>  上的随机变量，是随机事件 <strong>不确定性的度量</strong> ，如果事件为连续变量，即是把 <span class="math">\( \sum_{}^{}{}\)</span>  变成  <span class="math">\( \int_{}^{}\)</span>  求曲线积分。</p>
+<h2><strong>信息增益 Information Gain</strong></h2>
+<p>信息增益是系统从一个状态变成另一个状态之后，信息熵变小(系统 <strong>纯净度增大</strong> 或者系统的 <strong>不确定性减少</strong> 的程度)的增益效果量化。状态变更之前叫做<strong>初始状态熵</strong> ，状态变更之后叫 <strong>条件熵</strong> ，信息增益就是 <strong>初始状态熵 - 条件熵</strong></p>
+<div class="math">$$
+IG = Original Entropy - \sum_{}^{}{w_iEntropy(X_i)}\\
+$$</div>
+<p><span class="math">\( w_i\)</span>  为切分之后每部分的频率，也就是加权的概念，切分的越好，各部分的信息熵越小，信息增益也就越大。比如说  <span class="math">\( X\)</span>  为“明天下雨”这一随机事件，  <span class="math">\( Y\)</span> 为”明天阴天“这一随机条件，二者的信息熵都是可以通过事件的概率计算出来的，这里假如</p>
+<div class="math">$$
+Entropy(X) = 1
+$$</div>
+<div class="math">$$
+Entropy(Y) = 0.1
+$$</div>
+<p>此时信息增益为</p>
+<div class="math">$$
+Entropy(X) - Entropy(Y) = 0.9\\
+$$</div>
+<p>在得知“明天阴天”这一事件后，“明天下雨”的 <strong>不确定性减少了0.9</strong> ，所以 <strong>信息增益增大</strong>，换句话就是说，”明天阴天“这一事件对于“明天下雨”这一事件来说是很重要的，所以决策树可以用信息增益( <span class="math">\( IG/ 重要程度\)</span> )来判断节点的顺序</p>
+<h2><strong>基尼指数 Gini Index</strong></h2>
+<p>基尼指数是一个经济学系数，最初应用在判断年收入分配公平程度上，后来也应用于其他领域，代表了 <strong>模型的不纯度</strong> ，<strong>基尼指数越小，则不纯度越低，特征越好</strong> ，基尼指数的定义如下</p>
+<div class="math">$$
+Gini(X) = \sum_{j}^{}{P(j|X)(1-P(j|X))} = 1-\sum_{j}^{}{P(j|X)^2}\\
+$$</div>
+<p><span class="math">\( P(j|X)\)</span>  即是针对事件  <span class="math">\( X\)</span>  中，  <span class="math">\( j\)</span> 类的频率，若给定样本  <span class="math">\( N\)</span>  ，  <span class="math">\( C\)</span>  把  <span class="math">\( N\)</span>  分为 <span class="math">\( C_1，C_2\)</span>  两部分，则基尼系数为</p>
+<div class="math">$$
+Gini(N, C) = \sum_{i=1}^{2}{\frac{|C_i|}{|N|}Gini(C_i)}\\
+$$</div>
+<p>即两部分的 <strong>加权</strong> 基尼指数，  <span class="math">\( C\)</span> <strong>切分的越好，系统纯度越高，系统不纯度越低，基尼指数越小</strong>，这样通过不断的计算，找到最小的基尼指数即切分点，也可以遍历计算最终形成决策树</p>
+<h2><strong>分类和回归树 CART Classification And Regression Tree</strong></h2>
+<p>CART是一个二叉树，从名字就能看出来CART可以用来处理 <strong>分类</strong> 和 <strong>回归</strong> 问题，构造CART的过程是 <strong>递归地构建二叉决策树</strong> 的过程</p>
+<p><strong>分类树</strong> 通常采用Gini指数来构建树，即分别计算所有特征的Gini指数，然后用<strong>最小Gini指数的特征及相应的划分方式作为根节点和该特征的划分方式</strong> ，然后在其他维度上重复进行此操作，最终形成分类树</p>
+<p><strong>回归树</strong> 处理的是连续变量，通常采用 <strong>最小均方误差</strong> 的方法来构建，通俗讲起来就是，在  <span class="math">\( j\)</span> 个维度上，找到最优的切分点  <span class="math">\( s\)</span>  ，使得划分出来的  <span class="math">\( D_1, D_2\)</span> <strong>两部分数据的均方误差最小</strong> ，总结起来的公式如下</p>
+<div class="math">$$
+\begin{aligned}
+    Cost &amp;= \mathop{min}_{j,s}[\mathop{min}_{j, s}D_1, \mathop{min}_{j, s}D_2]\\
+    &amp;= \mathop{min}_{j,s}[\mathop{min}_{j, s} L_2(y^{(i)}, c_1), \mathop{min}_{j, s} L_2(y^{(i)},c_2)]
+\end{aligned}\\
+$$</div>
+<p><span class="math">\( L_2\)</span>  表示欧式距离 <span class="math">\( c_1, c_2\)</span>  为  <span class="math">\( D_1, D_2\)</span>  两部分数据的均值，一般情况下递归的过程中，有这样几种情况的时候，就可以停止分裂</p>
+<ul>
+<li>节点中的 <strong>样本数量小于阈值</strong></li>
+<li>节点中的 <strong>Gini指数小于阈值</strong> ，则代表分类足够好 </li>
+<li>没有更多的特征可以分裂了 </li>
+</ul>
+<p>回归树举例来说，针对一维数据集(多维的情况只是遍历的时候也要遍历其他维度来寻找最好切分点)，通过以下过程可以形成回归树</p>
+<ol>
+<li>在  <span class="math">\( j\)</span>  轴上遍历计算各个切分点的  <span class="math">\( Cost\)</span>  ，找到  <span class="math">\( s_1\)</span>  点 </li>
+<li>在  <span class="math">\( j\)</span>  轴上的  <span class="math">\( s_1\)</span>  点处将数据切成左右两部分(红色虚线左右) </li>
+<li>红色虚线左部分  <span class="math">\( c_1\)</span>  停止分裂(误差小于阈值)，右部分继续二分 </li>
+<li>在右部分遍历计算  <span class="math">\( Cost\)</span>  找到切分点  <span class="math">\( s_2\)</span> </li>
+<li><span class="math">\( c_2, c_3\)</span>  部分误差均小于阈值，所以停止分裂 </li>
+</ol>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/dt_cart.jpg"/></p>
+<p>至此回归树简历完成，形成的树形结构为</p>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/dt_tree.jpg"/></p>
+<h2><strong>总结</strong></h2>
+<p>信息熵、基尼指数二者的图像曲线关系如下，熵之半即是  <span class="math">\( Entropy/2\)</span>  ，二者的图像很相似，即 <span class="math">\( p=0.5\)</span>  时，熵和基尼指数都 <strong>到达最大</strong> ， <strong>即最不稳定</strong></p>
+<p><img class="image-process-article-image" src="/images/derivees/article-image/dt_diff.jpg"/></p>
+<p>决策树模型简单，易于理解，但是普通的决策树构造过程是 <strong>贪婪</strong>的，所谓贪婪就是决策树会一直分裂下去，直到没有更多的特征可以分裂了，所以对于普通的决策树来说 <strong>过拟合</strong> 很常见，这样一来就需要 <strong>剪枝</strong>使模型提前终止分裂( <strong>预剪枝</strong> )或者对完整的树进行剪枝( <strong>后剪枝</strong> )来让模型更简单、泛化能力更好，或者用 <strong>集成算法</strong> 来避免过拟合问题</p>
+<hr/>
+<p>😛</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+</div><!-- /.entry-content -->
+</article>
+</section>
+<section class="body" id="extras">
+<div class="blogroll">
+<h2>about me</h2>
+<ul>
+<li><a href="https://github.com/reedwave">github</a></li>
+<li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
+<li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
+</ul>
+</div><!-- /.blogroll -->
+<div class="social">
+<h2>social</h2>
+<ul>
+<li><a href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" type="application/atom+xml">atom feed</a></li>
+</ul>
+</div><!-- /.social -->
+</section><!-- /#extras -->
+<footer class="body" id="contentinfo">
+<address class="vcard body" id="about">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+<p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+</footer><!-- /#contentinfo -->
+</body>
+</html>
