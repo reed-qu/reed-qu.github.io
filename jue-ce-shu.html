@@ -1,35 +1,41 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>决策树</title>
-<link href="https://reed-qu.github.io/theme/css/main.css" rel="stylesheet"/>
-<link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" type="application/atom+xml"/>
+        <meta charset="utf-8" />
+        <meta name="generator" content="Pelican" />
+        <title>决策树</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="今天来研究一下分类问题中的决策树，决策树从名字就可以看出来，是一种树形结构的决策模型。如标题图中所看见的，我们想通过是“否拥有房产”、“是否已婚”、“年收入”这3个维度，来判断该客户是否具有偿还某种贷款的能力，就可以建造一个这样的1个树形结构模型，但是这其中有两个问题：1 …" />
 </head>
-<body class="home" id="index">
-<header class="body" id="banner">
-<h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
-<nav><ul>
-<li class="active"><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
-</ul></nav>
-</header><!-- /#banner -->
-<section class="body" id="content">
-<article>
-<header>
-<h1 class="entry-title">
-<a href="https://reed-qu.github.io/jue-ce-shu.html" rel="bookmark" title="Permalink to 决策树">决策树</a></h1>
-</header>
-<div class="entry-content">
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">[reed@blog ~]# _</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/machine-learning.html">machine learning</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/jue-ce-shu.html" rel="bookmark"
+           title="Permalink to 决策树">决策树</a></h1>
+    </header>
+
+    <div class="entry-content">
 <footer class="post-info">
-<abbr class="published" title="2020-01-24T15:15:30+08:00">
+        <abbr class="published" title="2020-01-24T15:15:30+08:00">
                 Published: 2020-01-24
         </abbr>
-<address class="vcard author">
-                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
-</address>
-<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
-</footer><!-- /.post-info --> <blockquote>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/reed.html">reed</a>
+        </address>
+<p>In <a href="/category/machine-learning.html">machine learning</a>.</p>
+
+</footer><!-- /.post-info -->      <blockquote>
 <p>今天来研究一下分类问题中的决策树，决策树从名字就可以看出来，是一种<strong>树形结构</strong>的决策模型。如标题图中所看见的，我们想通过是“否拥有房产”、“是否已婚”、“年收入”这3个维度，来判断该客户是否具有偿还某种贷款的能力，就可以建造一个这样的1个树形结构模型，但是这其中有两个问题：1，为什么判断顺序是图中所示的顺序；2，为什么拥有房产为“是”的时候就停止向下判断，这里简单介绍几种决策树相关的算法。</p>
 </blockquote>
 <h2><strong>信息论 Information Theory</strong></h2>
@@ -84,7 +90,7 @@ $$</div>
 <div class="math">$$
 Gini(N, C) = \sum_{i=1}^{2}{\frac{|C_i|}{|N|}Gini(C_i)}\\
 $$</div>
-<p>即两部分的 <strong>加权</strong> 基尼指数，  <span class="math">\( C\)</span> <strong>切分的越好，系统纯度越高，系统不纯度越低，基尼指数越小</strong>，这样通过不断的计算，找到最小的基尼指数即切分点，也可以遍历计算最终形成决策树</p>
+<p>即两部分的 <strong>加权</strong> 基尼指数，  <span class="math">\( C\)</span>  <strong>切分的越好，系统纯度越高，系统不纯度越低，基尼指数越小</strong>，这样通过不断的计算，找到最小的基尼指数即切分点，也可以遍历计算最终形成决策树</p>
 <h2><strong>分类和回归树 CART Classification And Regression Tree</strong></h2>
 <p>CART是一个二叉树，从名字就能看出来CART可以用来处理 <strong>分类</strong> 和 <strong>回归</strong> 问题，构造CART的过程是 <strong>递归地构建二叉决策树</strong> 的过程</p>
 <p><strong>分类树</strong> 通常采用Gini指数来构建树，即分别计算所有特征的Gini指数，然后用<strong>最小Gini指数的特征及相应的划分方式作为根节点和该特征的划分方式</strong> ，然后在其他维度上重复进行此操作，最终形成分类树</p>
@@ -109,14 +115,14 @@ $$</div>
 <li>在右部分遍历计算  <span class="math">\( Cost\)</span>  找到切分点  <span class="math">\( s_2\)</span> </li>
 <li><span class="math">\( c_2, c_3\)</span>  部分误差均小于阈值，所以停止分裂 </li>
 </ol>
-<p><img class="image-process-article-image" src="/images/derivees/article-image/dt_cart.jpg"/></p>
+<p><img class="image-process-article-image" src="/images/dt_cart.jpg"/></p>
 <p>至此回归树简历完成，形成的树形结构为</p>
-<p><img class="image-process-article-image" src="/images/derivees/article-image/dt_tree.jpg"/></p>
+<p><img class="image-process-article-image" src="/images/dt_tree.jpg"/></p>
 <h2><strong>总结</strong></h2>
 <p>信息熵、基尼指数二者的图像曲线关系如下，熵之半即是  <span class="math">\( Entropy/2\)</span>  ，二者的图像很相似，即 <span class="math">\( p=0.5\)</span>  时，熵和基尼指数都 <strong>到达最大</strong> ， <strong>即最不稳定</strong></p>
-<p><img class="image-process-article-image" src="/images/derivees/article-image/dt_diff.jpg"/></p>
+<p><img class="image-process-article-image" src="/images/dt_diff.jpg"/></p>
 <p>决策树模型简单，易于理解，但是普通的决策树构造过程是 <strong>贪婪</strong>的，所谓贪婪就是决策树会一直分裂下去，直到没有更多的特征可以分裂了，所以对于普通的决策树来说 <strong>过拟合</strong> 很常见，这样一来就需要 <strong>剪枝</strong>使模型提前终止分裂( <strong>预剪枝</strong> )或者对完整的树进行剪枝( <strong>后剪枝</strong> )来让模型更简单、泛化能力更好，或者用 <strong>集成算法</strong> 来避免过拟合问题</p>
-<hr/>
+<hr>
 <p>😛</p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
@@ -180,30 +186,28 @@ $$</div>
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 </script>
-</div><!-- /.entry-content -->
-</article>
+    </div><!-- /.entry-content -->
+
+  </article>
 </section>
-<section class="body" id="extras">
-<div class="blogroll">
-<h2>about me</h2>
-<ul>
-<li><a href="https://github.com/reedwave">github</a></li>
-<li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
-<li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
-</ul>
-</div><!-- /.blogroll -->
-<div class="social">
-<h2>social</h2>
-<ul>
-<li><a href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" type="application/atom+xml">atom feed</a></li>
-</ul>
-</div><!-- /.social -->
-</section><!-- /#extras -->
-<footer class="body" id="contentinfo">
-<address class="vcard body" id="about">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>about me</h2>
+                        <ul>
+                            <li><a href="https://github.com/reed-qu">github</a></li>
+                            <li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
+                            <li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
                 </address><!-- /#about -->
-<p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
-</footer><!-- /#contentinfo -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
 </body>
 </html>

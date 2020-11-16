@@ -1,41 +1,47 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>朴素贝叶斯分类</title>
-<link href="https://reed-qu.github.io/theme/css/main.css" rel="stylesheet"/>
-<link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" type="application/atom+xml"/>
+        <meta charset="utf-8" />
+        <meta name="generator" content="Pelican" />
+        <title>朴素贝叶斯分类</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="在机器学习中， 朴素贝叶斯 （Naive Bayes）是一系列以假设特征之间强（朴素）独立下运用贝叶斯定理为基础的简单 概率分类器。朴素贝叶斯自20世纪50年代已广泛研究。在20世纪60年代初就以另外一个名称引入到文本信息检索界中，并仍然是 文本分类的一种热门（基准）方法 …" />
 </head>
-<body class="home" id="index">
-<header class="body" id="banner">
-<h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
-<nav><ul>
-<li class="active"><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
-</ul></nav>
-</header><!-- /#banner -->
-<section class="body" id="content">
-<article>
-<header>
-<h1 class="entry-title">
-<a href="https://reed-qu.github.io/po-su-bei-xie-si-fen-lei.html" rel="bookmark" title="Permalink to 朴素贝叶斯分类">朴素贝叶斯分类</a></h1>
-</header>
-<div class="entry-content">
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">[reed@blog ~]# _</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/machine-learning.html">machine learning</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/po-su-bei-xie-si-fen-lei.html" rel="bookmark"
+           title="Permalink to 朴素贝叶斯分类">朴素贝叶斯分类</a></h1>
+    </header>
+
+    <div class="entry-content">
 <footer class="post-info">
-<abbr class="published" title="2020-01-21T16:06:57+08:00">
+        <abbr class="published" title="2020-01-21T16:06:57+08:00">
                 Published: 2020-01-21
         </abbr>
-<address class="vcard author">
-                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
-</address>
-<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
-</footer><!-- /.post-info --> <blockquote>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/reed.html">reed</a>
+        </address>
+<p>In <a href="/category/machine-learning.html">machine learning</a>.</p>
+
+</footer><!-- /.post-info -->      <blockquote>
 <p>在机器学习中， <strong>朴素贝叶斯</strong> （Naive Bayes）是一系列以假设特征之间强（朴素）独立下运用贝叶斯定理为基础的简单 <strong>概率分类器</strong>。朴素贝叶斯自20世纪50年代已广泛研究。在20世纪60年代初就以另外一个名称引入到文本信息检索界中，并仍然是 <strong>文本分类</strong>的一种热门（基准）方法，文本分类是以词频为特征判断文件所属类别或其他（如垃圾邮件、合法性、体育或政治等等）的问题。通过适当的预处理，它可以与这个领域更先进的方法（包括支持向量机）相竞争。它在自动医疗诊断中也有应用。参考<a href="https://zh.wikipedia.org/wiki/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8">朴素贝叶斯分类器
 </a></p>
 </blockquote>
 <h2><strong>贝叶斯定理</strong></h2>
 <p>要理解贝叶斯定理其实比较简单，实际上就是常说的 “ <em>条件概率</em> ”，所谓条件概率，就是假定事件A发生的基础上，事件B发生的概率，用 <span class="math">\( P(B|A)\)</span>  来表示，叫做“ <em>给定A时，B的概率</em> ”。</p>
-<p><img class="image-process-article-image-small" src="/images/derivees/article-image-small/nb_prob_condition.jpg"/></p>
+<p><img class="image-process-article-image-small" src="/images/nb_prob_condition.jpg"/></p>
 <p>考虑样本空间  <span class="math">\( \Omega\)</span>  中有2个事件A和B，其中 <strong>相交</strong> 的部分为  <span class="math">\( A\cap B\)</span>  ，这里可以很容易计算出贝叶斯公式</p>
 <div class="math">$$
 P(B|A)=\frac{P(A\cap B)}{P(A)} = \frac{P(A|B)\cdot P(B)}{P(A)}\\
@@ -77,13 +83,13 @@ $$</div>
     \end{aligned}
 \end{equation}\\
 $$</div>
-<p>这其中 <span class="math">\(P(C)\times \prod_{i=1}^{n}P(x_i|C)\)</span>  为主要关注的点，与  <span class="math">\(P(C|X)\)</span> <strong>正相关</strong> ，下面通过处理实际问题的例子具体感受一下朴素贝叶斯的神奇</p>
+<p>这其中 <span class="math">\(P(C)\times \prod_{i=1}^{n}P(x_i|C)\)</span>  为主要关注的点，与  <span class="math">\(P(C|X)\)</span>  <strong>正相关</strong> ，下面通过处理实际问题的例子具体感受一下朴素贝叶斯的神奇</p>
 <h2><strong>“是否要去看电影”问题</strong></h2>
 <blockquote>
 <p>比如说我喜欢去看电影，但是电影并不是想看就随时能看的，所以这里就要通过一些信息来做判断，判断我”是否要去看电影“</p>
 </blockquote>
 <p>这里有我近10次看电影的记录，大概总结起来主要有4个维度来影响我是否要去看电影，分别是：<strong><em>是否周末，天气好坏，地点远近，电影评分的高低</em></strong>，然后现在的情况是：<strong>是周末，天气坏，地点远，评分高的电影</strong> ，但是我现在不想权衡到底是看还是不看，这时候朴素贝叶斯就能很好的解决我的问题。</p>
-<p><img class="image-process-article-image" src="/images/derivees/article-image/nb_example.jpg"/></p>
+<p><img class="image-process-article-image" src="/images/nb_example.jpg"/></p>
 <p>根据朴素贝叶斯公式，这里写的通俗一些，其实就是数数，比如  <span class="math">\( P(看)\)</span>  就是在所有样本中” <em>看</em> “占的比例，<span class="math">\( P(是周末|看)\)</span>  就是在看的5天中有3天是周末，所以概率就为  <span class="math">\( \frac{3}{5}\)</span></p>
 <div class="math">$$
 \begin{equation}
@@ -132,7 +138,7 @@ $$</div>
 <ul>
 <li>由于 “ <strong><em>朴素</em></strong> ” 的强假设，分类的准确率会有所牺牲，比如在做 “ <strong><em>垃圾邮件分类</em></strong> ” 的时候，我们知道，一封邮件中的词不是相互独立的，比如说 “ <strong><em>我想喝xxx</em></strong> ”，这里 <strong><em>xxx</em></strong> 大概率是一种饮品，而不是 “ <strong><em>电脑</em></strong> ”, “ <strong><em>手机</em></strong> ” 等其他词汇，这时就可能会导致分类错误的情况。</li>
 </ul>
-<hr/>
+<hr>
 <p>😛</p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
@@ -196,30 +202,28 @@ $$</div>
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 </script>
-</div><!-- /.entry-content -->
-</article>
+    </div><!-- /.entry-content -->
+
+  </article>
 </section>
-<section class="body" id="extras">
-<div class="blogroll">
-<h2>about me</h2>
-<ul>
-<li><a href="https://github.com/reedwave">github</a></li>
-<li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
-<li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
-</ul>
-</div><!-- /.blogroll -->
-<div class="social">
-<h2>social</h2>
-<ul>
-<li><a href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" type="application/atom+xml">atom feed</a></li>
-</ul>
-</div><!-- /.social -->
-</section><!-- /#extras -->
-<footer class="body" id="contentinfo">
-<address class="vcard body" id="about">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>about me</h2>
+                        <ul>
+                            <li><a href="https://github.com/reed-qu">github</a></li>
+                            <li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
+                            <li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
                 </address><!-- /#about -->
-<p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
-</footer><!-- /#contentinfo -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
 </body>
 </html>

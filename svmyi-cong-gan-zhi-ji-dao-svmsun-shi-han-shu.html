@@ -1,40 +1,46 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>SVM(一)从感知机到SVM损失函数</title>
-<link href="https://reed-qu.github.io/theme/css/main.css" rel="stylesheet"/>
-<link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" type="application/atom+xml"/>
+        <meta charset="utf-8" />
+        <meta name="generator" content="Pelican" />
+        <title>SVM(一)从感知机到SVM损失函数</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="在做二分类任务的时候，往往可采用的方法有很多，比如 对数几率回归 或者树模型(往往是 随机森林 ， GBDT 这一类集成模型)，当然还有很多种办法， 感知机 就是其中的比较直观和简单的一种，感知机的原理很简单，考虑在特种空间中的 线性可分 …" />
 </head>
-<body class="home" id="index">
-<header class="body" id="banner">
-<h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
-<nav><ul>
-<li class="active"><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
-</ul></nav>
-</header><!-- /#banner -->
-<section class="body" id="content">
-<article>
-<header>
-<h1 class="entry-title">
-<a href="https://reed-qu.github.io/svmyi-cong-gan-zhi-ji-dao-svmsun-shi-han-shu.html" rel="bookmark" title="Permalink to SVM(一)从感知机到SVM损失函数">SVM(一)从感知机到SVM损失函数</a></h1>
-</header>
-<div class="entry-content">
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">[reed@blog ~]# _</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/machine-learning.html">machine learning</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/svmyi-cong-gan-zhi-ji-dao-svmsun-shi-han-shu.html" rel="bookmark"
+           title="Permalink to SVM(一)从感知机到SVM损失函数">SVM(一)从感知机到SVM损失函数</a></h1>
+    </header>
+
+    <div class="entry-content">
 <footer class="post-info">
-<abbr class="published" title="2020-01-24T16:12:11+08:00">
+        <abbr class="published" title="2020-01-24T16:12:11+08:00">
                 Published: 2020-01-24
         </abbr>
-<address class="vcard author">
-                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
-</address>
-<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
-</footer><!-- /.post-info --> <blockquote>
-<p>在做二分类任务的时候，往往可采用的方法有很多，比如 <a href="https://reed-qu.github.io/dui-shu-ji-lu-hui-gui-luo-ji-hui-gui.html"> 对数几率回归 </a> 或者树模型(往往是 <a href="https://reed-qu.github.io/ji-cheng-xue-xi-sui-ji-sen-lin-adaboost.html"> 随机森林 </a> ， <a href="https://reed-qu.github.io/cong-gbdtdao-xgboost.html"> GBDT</a> 这一类集成模型)，当然还有很多种办法， <strong><a href="https://zh.wikipedia.org/wiki/%E6%84%9F%E7%9F%A5%E5%99%A8"> 感知机</a></strong> 就是其中的比较直观和简单的一种，感知机的原理很简单，考虑在特种空间中的 <strong>线性可分</strong> 的数据集，是能够找到一条 <strong>分类超平面</strong>把两类数据给正确区分开的，这个不是这里要讨论的重点，这里要讨论的是这种很显然有 <strong>无数种超平面使两分类正确分类的时候如何找到”最好“的那一条</strong>，有了“最好”的限制条件，就成为了这里要说的 <strong>SVM</strong> <code>Support Vector Machine</code></p>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/reed.html">reed</a>
+        </address>
+<p>In <a href="/category/machine-learning.html">machine learning</a>.</p>
+
+</footer><!-- /.post-info -->      <blockquote>
+<p>在做二分类任务的时候，往往可采用的方法有很多，比如 <a href="/dui-shu-ji-lu-hui-gui-luo-ji-hui-gui.html"> 对数几率回归 </a> 或者树模型(往往是 <a href="/ji-cheng-xue-xi-sui-ji-sen-lin-adaboost.html"> 随机森林 </a> ， <a href="/cong-gbdtdao-xgboost.html"> GBDT</a> 这一类集成模型)，当然还有很多种办法， <strong><a href="https://zh.wikipedia.org/wiki/%E6%84%9F%E7%9F%A5%E5%99%A8"> 感知机</a></strong> 就是其中的比较直观和简单的一种，感知机的原理很简单，考虑在特种空间中的 <strong>线性可分</strong> 的数据集，是能够找到一条 <strong>分类超平面</strong>把两类数据给正确区分开的，这个不是这里要讨论的重点，这里要讨论的是这种很显然有 <strong>无数种超平面使两分类正确分类的时候如何找到”最好“的那一条</strong>，有了“最好”的限制条件，就成为了这里要说的 <strong>SVM</strong> <code>Support Vector Machine</code></p>
 </blockquote>
 <h2><strong>感知机</strong></h2>
 <p>感知机是 <strong>二分类的线性分类模型</strong> ，感知机要做的事是在训练数据中找到一个 <strong>超平面</strong>，将数据分为正例和负例两类，其输入就是数据的特征向量，这里简单的说一下感知机的过程，主要是为了引出后面的SVM，这里只考虑线性可分的情况</p>
-<p>首先给定数据集  <span class="math">\( D={(x^{(1)}, y^{(1)}), (x^{(2)},y^{(2)}),\cdots,(x^{(N)}, y^{(N)})}\)</span>  ，其中  <span class="math">\( x^{(i)}\in R^n\)</span>，<span class="math">\( y^{(i)}\in {-1, +1\\}\)</span> <span class="math">\( i = 1,2\cdots,N\)</span>，如下图所示的红色和蓝色的点，这里不是回归问题中的拟合一条直线去逼近这些数据点，而是找到一条直线将两类数据划分开，考虑二维空间中直线的公式为 <span class="math">\( y=ax+b\)</span>  ，这里  <span class="math">\( x,y\)</span>  是可以看成是数据点的两个维度可以转化成 <span class="math">\( x_1,x_2\)</span>  ，于是直线就可以改写成  <span class="math">\( ax_1-x_2+b=0\)</span>  ，可以更进一步的写成<strong>向量</strong> 的形式</p>
+<p>首先给定数据集  <span class="math">\( D={(x^{(1)}, y^{(1)}), (x^{(2)},y^{(2)}),\cdots,(x^{(N)}, y^{(N)})}\)</span>  ，其中  <span class="math">\( x^{(i)}\in R^n\)</span>，<span class="math">\( y^{(i)}\in {-1, +1\\}\)</span>  <span class="math">\( i = 1,2\cdots,N\)</span>，如下图所示的红色和蓝色的点，这里不是回归问题中的拟合一条直线去逼近这些数据点，而是找到一条直线将两类数据划分开，考虑二维空间中直线的公式为 <span class="math">\( y=ax+b\)</span>  ，这里  <span class="math">\( x,y\)</span>  是可以看成是数据点的两个维度可以转化成 <span class="math">\( x_1,x_2\)</span>  ，于是直线就可以改写成  <span class="math">\( ax_1-x_2+b=0\)</span>  ，可以更进一步的写成<strong>向量</strong> 的形式</p>
 <div class="math">$$
 [a, -1]^T\bullet [x_1,x_2]+b=\theta^Tx+b=0\\
 $$</div>
@@ -54,8 +60,8 @@ $$</div>
     J(\theta,b) &amp;= -\sum_{i=1}^{M}{y^{(i)}(\theta^Tx^{(i)}+b)}\\    \frac{\partial J}{\partial \theta} &amp;= -\sum_{i=1}^{M}{y^{(i)}x^{(i)}}\\
     \frac{\partial J}{\partial b} &amp;= -\sum_{i=1}^{M}{y^{(i)}} \end{aligned}\\
 $$</div>
-<p>有了损失函数和  <span class="math">\( \theta, b\)</span>  的偏导，就可以利用 <a href="https://reed-qu.github.io/pi-liang-ti-du-xia-jiang.html"> 梯度下降</a>来对其进行迭代求解，这里不再赘述了，感知机说到这里主要有一个问题，就是感知机的这个超平面是有无数个的，比如下图所示的线性可分的数据，在两条黑色虚线的间隔中，可以画出无数条直线能够完美的将数据划分开，<strong>那么是否能找到最好的一条呢？</strong></p>
-<p><img class="image-process-article-image" src="/images/derivees/article-image/svm1_preceptron.jpg"/></p>
+<p>有了损失函数和  <span class="math">\( \theta, b\)</span>  的偏导，就可以利用 <a href="/pi-liang-ti-du-xia-jiang.html"> 梯度下降</a>来对其进行迭代求解，这里不再赘述了，感知机说到这里主要有一个问题，就是感知机的这个超平面是有无数个的，比如下图所示的线性可分的数据，在两条黑色虚线的间隔中，可以画出无数条直线能够完美的将数据划分开，<strong>那么是否能找到最好的一条呢？</strong></p>
+<p><img class="image-process-article-image" src="/images/svm1_preceptron.jpg"/></p>
 <p>从图上可以直观的看出来，蓝色和绿色的直线虽然也能将数据划分开，但是都或多或少的向某一边“ <strong><em>倾斜</em> </strong>”，所以这里要找的内条“最好”的直线是指这条线是 <strong>以“最可靠”的方式来划分</strong> 的，<strong>不但将训练数据正确划分，也能够对未知数据有足够的可信度将其分开</strong> ，从图中也显然能观察出来间隔中间红色的直线要好于另外两条， <strong>SVM</strong>就是找到这条红线的一种方法。</p>
 <h2><strong>硬间隔线性可分SVM</strong></h2>
 <p>首先只讨论数据集线性可分的情况，给定数据集<span class="math">\(D={(x^{(1)},y^{(1)}),x^{(2)},y^{(2)}),\cdots,(x^{(N)}, y^{(N)})}\)</span>  ，其中  <span class="math">\( x^{(i)}\in R^n\)</span>  ，<span class="math">\( y^{(i)}\in {-1, +1}\)</span>  ，根据前面对感知机的了解，要同时满足两个条件才能确定这个超平面</p>
@@ -64,7 +70,7 @@ $$</div>
 <li>两类数据中间的 <strong>间隔要足够大</strong> ，这样间隔中间的这条线才是足够可靠的 </li>
 </ol>
 <p>结合下面的图来具体的说一下SVM的优化方向</p>
-<p><img class="image-process-article-image" src="/images/derivees/article-image/svm1_hard_margin.jpg"/></p>
+<p><img class="image-process-article-image" src="/images/svm1_hard_margin.jpg"/></p>
 <p>根据SVM正负例都在间隔上或者间隔外这一特点，如果数据被正确分类的话就会有数据点的 <strong>几何间隔</strong> 符合</p>
 <div class="math">$$
 \begin{cases}
@@ -77,7 +83,7 @@ $$</div>
     \frac{\theta^Tx^{(i)}+b}{||\theta||d} \geq 1, &amp;y^{(i)} = 1\\    \frac{\theta^Tx^{(i)}+b}{||\theta||d} \leq 1, &amp; y^{(i)} = -1
 \end{cases}\\
 $$</div>
-<p>上式中主要关注  <span class="math">\( \frac{\theta^T}{||\theta||d}\)</span>  和  <span class="math">\(\frac{b}{||\theta||d}\)</span>  ，这时候可以发现， <strong>事情本质并没有发生什么变化，这两个值只是在</strong> <span class="math">\(\theta^T,b\)</span> <strong>的基础上对其数值大小进行了一定的缩放</strong> ，就仍然可以写成</p>
+<p>上式中主要关注  <span class="math">\( \frac{\theta^T}{||\theta||d}\)</span>  和  <span class="math">\(\frac{b}{||\theta||d}\)</span>  ，这时候可以发现， <strong>事情本质并没有发生什么变化，这两个值只是在</strong> <span class="math">\(\theta^T,b\)</span>  <strong>的基础上对其数值大小进行了一定的缩放</strong> ，就仍然可以写成</p>
 <div class="math">$$
 \begin{cases}
     \theta^Tx^{(i)}+b \geq 1, &amp; y^{(i)} = 1\\
@@ -103,8 +109,8 @@ $$</div>
     &amp;s.t. \space y^{(i)}(\theta^Tx^{(i)}+b)\geq1
 \end{aligned}\\
 $$</div>
-<p>但是这个损失函数并不是单独的一个式子，而是 <strong>有约束的</strong> ( <span class="math">\( s.t.\)</span> 为 <em>subject to的缩写</em>)的损失函数，其意思呢就是在  <span class="math">\( s.t. \space y^{(i)}\theta^Tx^{(i)}+b)\geq1\)</span> 这个 <strong>可行解空间中</strong> 去优化 <span class="math">\( \mathop{min}_{\theta}\frac{1}{2}||\theta||^2\)</span>  ，这部分在下一篇 <a href="https://reed-qu.github.io/svmer-la-ge-lang-ri-dui-ou-shi.html"> SVM(二)</a> 中主要讨论。</p>
-<hr/>
+<p>但是这个损失函数并不是单独的一个式子，而是 <strong>有约束的</strong> ( <span class="math">\( s.t.\)</span> 为 <em>subject to的缩写</em>)的损失函数，其意思呢就是在  <span class="math">\( s.t. \space y^{(i)}\theta^Tx^{(i)}+b)\geq1\)</span> 这个 <strong>可行解空间中</strong> 去优化 <span class="math">\( \mathop{min}_{\theta}\frac{1}{2}||\theta||^2\)</span>  ，这部分在下一篇 <a href="/svmer-la-ge-lang-ri-dui-ou-shi.html"> SVM(二)</a> 中主要讨论。</p>
+<hr>
 <p>😛</p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
@@ -168,30 +174,28 @@ $$</div>
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 </script>
-</div><!-- /.entry-content -->
-</article>
+    </div><!-- /.entry-content -->
+
+  </article>
 </section>
-<section class="body" id="extras">
-<div class="blogroll">
-<h2>about me</h2>
-<ul>
-<li><a href="https://github.com/reedwave">github</a></li>
-<li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
-<li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
-</ul>
-</div><!-- /.blogroll -->
-<div class="social">
-<h2>social</h2>
-<ul>
-<li><a href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" type="application/atom+xml">atom feed</a></li>
-</ul>
-</div><!-- /.social -->
-</section><!-- /#extras -->
-<footer class="body" id="contentinfo">
-<address class="vcard body" id="about">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>about me</h2>
+                        <ul>
+                            <li><a href="https://github.com/reed-qu">github</a></li>
+                            <li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
+                            <li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
                 </address><!-- /#about -->
-<p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
-</footer><!-- /#contentinfo -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
 </body>
 </html>

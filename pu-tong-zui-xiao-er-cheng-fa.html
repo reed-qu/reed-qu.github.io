@@ -1,36 +1,42 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>普通最小二乘法</title>
-<link href="https://reed-qu.github.io/theme/css/main.css" rel="stylesheet"/>
-<link href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" title="[reed@blog ~]# _ Atom Feed" type="application/atom+xml"/>
+        <meta charset="utf-8" />
+        <meta name="generator" content="Pelican" />
+        <title>普通最小二乘法</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="在 批量梯度下降 中讨论了，如何利用梯度下降的方式，如何一步一步寻找到损失函数的最小值，得到最佳拟合的 \(\theta\)，这里我们继续讨论线性拟合问题，这次尝试用 最小二乘法 直接求解 \(\theta\)，就是说我们不用从山顶寻找梯度一步一步的往最低点走，某种情况下可以直接计算出 \(\theta …" />
 </head>
-<body class="home" id="index">
-<header class="body" id="banner">
-<h1><a href="https://reed-qu.github.io/">[reed@blog ~]# _ </a></h1>
-<nav><ul>
-<li class="active"><a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a></li>
-</ul></nav>
-</header><!-- /#banner -->
-<section class="body" id="content">
-<article>
-<header>
-<h1 class="entry-title">
-<a href="https://reed-qu.github.io/pu-tong-zui-xiao-er-cheng-fa.html" rel="bookmark" title="Permalink to 普通最小二乘法">普通最小二乘法</a></h1>
-</header>
-<div class="entry-content">
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">[reed@blog ~]# _</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/machine-learning.html">machine learning</a></li>
+                    <li><a href="/category/python.html">Python</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/pu-tong-zui-xiao-er-cheng-fa.html" rel="bookmark"
+           title="Permalink to 普通最小二乘法">普通最小二乘法</a></h1>
+    </header>
+
+    <div class="entry-content">
 <footer class="post-info">
-<abbr class="published" title="2020-01-21T15:20:30+08:00">
+        <abbr class="published" title="2020-01-21T15:20:30+08:00">
                 Published: 2020-01-21
         </abbr>
-<address class="vcard author">
-                By                         <a class="url fn" href="https://reed-qu.github.io/author/reed.html">reed</a>
-</address>
-<p>In <a href="https://reed-qu.github.io/category/machine-learning.html">machine learning</a>.</p>
-</footer><!-- /.post-info --> <blockquote>
-<p>在 <a href="https://reed-qu.github.io/pi-liang-ti-du-xia-jiang.html"> 批量梯度下降 </a>中讨论了，如何利用梯度下降的方式，如何一步一步寻找到损失函数的最小值，得到最佳拟合的  <span class="math">\(\theta\)</span>，这里我们继续讨论线性拟合问题，这次尝试用<a href="https://link.zhihu.com/?target=https%3A//zh.wikipedia.org/zh-
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/reed.html">reed</a>
+        </address>
+<p>In <a href="/category/machine-learning.html">machine learning</a>.</p>
+
+</footer><!-- /.post-info -->      <blockquote>
+<p>在 <a href="/pi-liang-ti-du-xia-jiang.html"> 批量梯度下降 </a>中讨论了，如何利用梯度下降的方式，如何一步一步寻找到损失函数的最小值，得到最佳拟合的  <span class="math">\(\theta\)</span>，这里我们继续讨论线性拟合问题，这次尝试用<a href="https://link.zhihu.com/?target=https%3A//zh.wikipedia.org/zh-
 hans/%25E6%259C%2580%25E5%25B0%258F%25E4%25BA%258C%25E4%25B9%2598%25E6%25B3%2595"> 最小二乘法 </a>直接求解  <span class="math">\(\theta\)</span>，就是说我们不用从山顶寻找梯度一步一步的往最低点走，某种情况下可以直接计算出  <span class="math">\(\theta\)</span></p>
 </blockquote>
 <h3><strong>普通最小二乘法 <em>(Ordinary least squares)</em></strong></h3>
@@ -134,7 +140,7 @@ $$</div>
 <p>还是逆运算，并不是所有的矩阵都是可逆的，如果数据集中有 <strong>多重共线性</strong> 的问题( <strong>矩阵行列式=0</strong> )，这里求逆就行不通了，即便是可逆，多重共线性也会让结果很不准确，但是梯度下降还是可以一步一步收敛。当然了也可以通过比如降维，求伪逆，损失函数加上个惩罚项( 后面会讨论<strong><em>LASSO</em></strong> 和 <strong><em>Ridge</em></strong> )等办法对数据集进行处理，转化成可逆矩阵。</p>
 </li>
 </ul>
-<hr/>
+<hr>
 <p>😛</p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
@@ -198,30 +204,28 @@ $$</div>
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 </script>
-</div><!-- /.entry-content -->
-</article>
+    </div><!-- /.entry-content -->
+
+  </article>
 </section>
-<section class="body" id="extras">
-<div class="blogroll">
-<h2>about me</h2>
-<ul>
-<li><a href="https://github.com/reedwave">github</a></li>
-<li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
-<li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
-</ul>
-</div><!-- /.blogroll -->
-<div class="social">
-<h2>social</h2>
-<ul>
-<li><a href="https://reed-qu.github.io/feeds/all.atom.xml" rel="alternate" type="application/atom+xml">atom feed</a></li>
-</ul>
-</div><!-- /.social -->
-</section><!-- /#extras -->
-<footer class="body" id="contentinfo">
-<address class="vcard body" id="about">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>about me</h2>
+                        <ul>
+                            <li><a href="https://github.com/reed-qu">github</a></li>
+                            <li><a href="https://www.zhihu.com/people/reedqu">zhihu</a></li>
+                            <li><a href="https://zhuanlan.zhihu.com/c_1098916898112212992">知乎专栏</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
                 </address><!-- /#about -->
-<p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
-</footer><!-- /#contentinfo -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
 </body>
 </html>
